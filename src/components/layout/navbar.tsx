@@ -8,19 +8,23 @@ export function Navbar() {
           <Link className="mr-6 flex items-center space-x-2" href="/">
             <span className="font-bold">Tienda UCN</span>
           </Link>
+
+          {/* Rutas corregidas */}
           <nav className="flex items-center gap-6 text-sm">
             <Link
               className="transition-colors hover:text-foreground/80 text-foreground/60"
-              href="/productos"
+              href="/products"
             >
               Productos
             </Link>
+
             <Link
               className="transition-colors hover:text-foreground/80 text-foreground/60"
-              href="/categorias"
+              href="/categories"
             >
               Categorías
             </Link>
+
             <Link
               className="transition-colors hover:text-foreground/80 text-foreground/60"
               href="/about"
@@ -29,14 +33,16 @@ export function Navbar() {
             </Link>
           </nav>
         </div>
+
         <div className="flex flex-1 items-center justify-end space-x-2">
           <nav className="flex items-center gap-2">
             <Link
               className="transition-colors hover:text-foreground/80 text-foreground/60"
-              href="/carrito"
+              href="/cart"
             >
               Carrito
             </Link>
+
             <Link
               className="transition-colors hover:text-foreground/80 text-foreground/60"
               href="/login"
