@@ -1,41 +1,43 @@
 "use client";
 
-import { useState } from "react";
-import { useProducts } from "@/hooks/useProducts";
-import { ProductCard } from "@/components/common/ProductCard";
+import { useParams } from "next/navigation";
+import { useProduct } from "@/hooks/useProducts";
 
-export default function ProductsPage() {
-  const [search, setSearch] = useState("");
-  const { data, isLoading, isError, error } = useProducts(search);
+export default function ProductDetailPage() {
+  const { id } = useParams();
+  const productId = Number(id);
 
-  if (isLoading) return <p className="p-6">Cargando productos...</p>;
-  if (isError)
-    return <p className="p-6">Error al cargar productos: {String(error)}</p>;
+  const { data: product, isLoading, isError, error } = useProduct(
+    productId > 0 ? productId : 0
+  );
 
-  const products = data?.products ?? [];
-  console.log("Productos que se van a renderizar:", products);
+  if (isLoading) return <p className="p-6">Cargando producto...</p>;
+  if (isError) return <p className="p-6">Error: {String(error)}</p>;
+  if (!product) return <p className="p-6">Producto no encontrado</p>;
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-4">Productos</h1>
+      <h1 className="text-3xl font-bold">{product.title}</h1>
+      <p className="text-gray-600 mt-2">{product.description}</p>
+      <p className="text-xl font-bold mt-2">{product.finalPrice}</p>
+      <p className="text-sm text-gray-500">
+        Stock: {product.stock} ({product.stockIndicator})
+      </p>
+      <p className="text-sm text-gray-500">Categoría: {product.categoryName}</p>
+      <p className="text-sm text-gray-500">Marca: {product.brandName}</p>
+      <p className="text-sm text-gray-500">Estado: {product.statusName}</p>
 
-      <input
-        type="text"
-        placeholder="Buscar productos..."
-        className="border p-2 rounded w-full mb-6"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
-      {products.length === 0 ? (
-        <p>No se encontraron productos.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+        {product.imagesURL.map((img, index) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={index}
+            src={img}
+            alt={product.title}
+            className="w-full h-32 object-cover rounded"
+          />
+        ))}
+      </div>
     </div>
   );
 }

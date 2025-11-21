@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, getProductById } from "@/services/product.service";
-import { Product, ProductListResponse } from "@/models/product.types";
+import { ProductListResponse,ProductDetail } from "@/models/product.types";
 
 export function useProducts(search?: string) {
   return useQuery<ProductListResponse>({
@@ -10,9 +10,11 @@ export function useProducts(search?: string) {
 }
 
 export function useProduct(id: number) {
-  return useQuery<Product>({
+  return useQuery<ProductDetail>({
     queryKey: ["product", id],
     queryFn: () => getProductById(id),
     enabled: id > 0,
+    staleTime: 1000 * 60,
+    retry: 2,
   });
 }

@@ -1,5 +1,5 @@
 import { api } from "@/lib/axios";
-import { ProductListResponse, Product } from "@/models/product.types";
+import { ProductListResponse, ProductDetail } from "@/models/product.types";
 
 export async function getProducts(search?: string): Promise<ProductListResponse> {
   const res = await api.get("/products", {
@@ -9,10 +9,6 @@ export async function getProducts(search?: string): Promise<ProductListResponse>
       searchTerm: search || undefined,
     },
   });
-
-  console.log("API response:", res.data); // 🔍 Para depurar
-
-  // Soporte para distintos formatos de payload
   const backend = res.data?.data ?? res.data ?? {};
 
   return {
@@ -24,8 +20,16 @@ export async function getProducts(search?: string): Promise<ProductListResponse>
   };
 }
 
-export async function getProductById(id: number): Promise<Product> {
+export async function getProductById(id: number): Promise<ProductDetail> {
   const res = await api.get(`/products/${id}`);
-  const payload = res.data?.data ?? res.data;
-  return payload as Product;
+  console.log("Respuesta API completa:", res.data);
+  
+  const payload = res.data?.data;
+  console.log("Payload extraído:", payload);
+
+  if (!payload) {
+    throw new Error("Producto no encontrado");
+  }
+
+  return payload as ProductDetail;
 }

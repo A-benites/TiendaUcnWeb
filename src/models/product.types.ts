@@ -18,3 +18,19 @@ export interface ProductListResponse {
   pageSize: number;
   totalPages: number;
 }
+
+export interface ProductDetail {
+  id: number;
+  title: string;
+  description: string;
+  imagesURL: string[];
+  price: string;
+  discount: number;
+  finalPrice: string;
+  stock: number;
+  stockIndicator: string;
+  categoryName: string;
+  brandName: string;
+  statusName: string;
+  isAvailable: boolean;
+}
