@@ -1,12 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useProducts } from "@/hooks/useProducts";
 import { ProductCard } from "@/components/common/ProductCard";
 
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
-  const { data, isLoading, isError, error } = useProducts(search);
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  const { data, isLoading, isError, error } = useProducts(debouncedSearch);
 
   if (isLoading) return <p className="p-6">Cargando productos...</p>;
   if (isError)
