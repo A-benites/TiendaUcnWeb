@@ -8,7 +8,6 @@ export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState(search);
 
-
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
@@ -20,8 +19,7 @@ export default function ProductsPage() {
   const { data, isLoading, isError, error } = useProducts(debouncedSearch);
 
   if (isLoading) return <p className="p-6">Cargando productos...</p>;
-  if (isError)
-    return <p className="p-6">Error al cargar productos: {String(error)}</p>;
+  if (isError) return <p className="p-6">Error al cargar productos: {String(error)}</p>;
 
   const products = data?.products ?? [];
   console.log("Productos que se van a renderizar:", products);
