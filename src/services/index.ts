@@ -1,2 +1,2 @@
 export { BaseApiService } from "./base-api-service";
-export { productService } from "./product.service";
+export { getProducts, getProductById } from "./product.service";

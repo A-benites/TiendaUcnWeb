@@ -1,6 +1,21 @@
+"use client";
+
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
+import { ShoppingCart } from "lucide-react";
+import { useCartStore } from "@/stores/cart.store";
+
+const emptySubscribe = () => () => {};
 
 export function Navbar() {
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
+  const totalItems = useCartStore((state) => state.getTotalItems());
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container flex h-16 max-w-screen-2xl items-center">
@@ -37,10 +52,16 @@ export function Navbar() {
         <div className="flex flex-1 items-center justify-end space-x-2">
           <nav className="flex items-center gap-2">
             <Link
-              className="transition-colors hover:text-foreground/80 text-foreground/60"
+              className="relative transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-2"
               href="/cart"
             >
-              Carrito
+              <ShoppingCart className="h-5 w-5" />
+              {isClient && totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
+              <span className="hidden sm:inline">Carrito</span>
             </Link>
 
             <Link

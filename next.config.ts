@@ -7,7 +7,20 @@ const nextConfig = {
         hostname: "shop.songprinting.com",
         pathname: "/**",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**", // Permite cualquier dominio https
+      },
     ],
+    // Manejo de errores de imágenes
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 

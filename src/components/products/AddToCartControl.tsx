@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ProductDetail } from "@/models/product.types";
 import { useCartStore } from "@/stores/cart.store";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
@@ -16,11 +15,11 @@ export function AddToCartControl({ product }: AddToCartControlProps) {
   const addItem = useCartStore((state) => state.addItem);
 
   const handleIncrement = () => {
-    if (quantity < product.stock) setQuantity(prev => prev + 1);
+    if (quantity < product.stock) setQuantity((prev) => prev + 1);
   };
 
   const handleDecrement = () => {
-    if (quantity > 1) setQuantity(prev => prev - 1);
+    if (quantity > 1) setQuantity((prev) => prev - 1);
   };
 
   const handleAddToCart = () => {
@@ -39,23 +38,21 @@ export function AddToCartControl({ product }: AddToCartControlProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-center mt-6">
       <div className="flex items-center border rounded-md">
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={handleDecrement}
           disabled={quantity <= 1}
           className="h-10 w-10"
         >
           <Minus className="h-4 w-4" />
         </Button>
-        
-        <div className="w-12 text-center font-medium">
-          {quantity}
-        </div>
 
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <div className="w-12 text-center font-medium">{quantity}</div>
+
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={handleIncrement}
           disabled={quantity >= product.stock}
           className="h-10 w-10"
@@ -69,9 +66,7 @@ export function AddToCartControl({ product }: AddToCartControlProps) {
         Agregar al Carrito
       </Button>
 
-      <span className="text-sm text-muted-foreground">
-        {product.stock} disponibles
-      </span>
+      <span className="text-sm text-muted-foreground">{product.stock} disponibles</span>
     </div>
   );
 }
