@@ -10,15 +10,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function ProductDetailPage() {
   // Estado para manejar errores de carga de imagen
   const [imgError, setImgError] = useState(false);
-  
+
   // Obtener el ID de la URL
   const { id } = useParams();
   const productId = Number(id);
 
   // Obtener datos del producto usando el hook
-  const { data: product, isLoading, isError, error } = useProduct(
-    productId > 0 ? productId : 0
-  );
+  const { data: product, isLoading, isError, error } = useProduct(productId > 0 ? productId : 0);
 
   // Manejo de estados (Carga y Error)
   if (isLoading) return <ProductDetailSkeleton />;
@@ -27,15 +25,14 @@ export default function ProductDetailPage() {
 
   // Helper para obtener la imagen principal segura
   // Prioriza mainImageURL, luego el primer elemento de imagesURL, finalmente placeholder
-  const mainImage = 
-    product.mainImageURL || 
-    (product.imagesURL && product.imagesURL.length > 0 ? product.imagesURL[0] : null) || 
+  const mainImage =
+    product.mainImageURL ||
+    (product.imagesURL && product.imagesURL.length > 0 ? product.imagesURL[0] : null) ||
     "/placeholder.png";
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        
         {/* SECCIÓN IZQUIERDA: Galería de Imágenes */}
         <div className="space-y-4">
           {/* Imagen Principal */}
@@ -86,7 +83,7 @@ export default function ProductDetailPage() {
             </span>
             <h1 className="text-3xl font-bold mt-2 text-foreground">{product.title}</h1>
           </div>
-          
+
           {/* Precio */}
           <div className="flex items-end gap-3">
             <span className="text-3xl font-bold text-primary">{product.finalPrice}</span>
@@ -106,7 +103,7 @@ export default function ProductDetailPage() {
           <div className="prose prose-sm text-muted-foreground">
             <p>{product.description}</p>
           </div>
-          
+
           {/* Estado del Stock */}
           <div className="flex items-center gap-2">
             <div
@@ -143,20 +140,20 @@ function ProductDetailSkeleton() {
           ))}
         </div>
       </div>
-      
+
       {/* Skeleton Textos */}
       <div className="flex flex-col gap-4">
-        <Skeleton className="h-4 w-32" /> 
-        <Skeleton className="h-10 w-3/4" /> 
-        <Skeleton className="h-8 w-40" /> 
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-10 w-3/4" />
+        <Skeleton className="h-8 w-40" />
         <div className="space-y-2 py-4">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-2/3" />
         </div>
         <div className="mt-8 flex gap-4">
-          <Skeleton className="h-12 w-32" /> 
-          <Skeleton className="h-12 w-full" /> 
+          <Skeleton className="h-12 w-32" />
+          <Skeleton className="h-12 w-full" />
         </div>
       </div>
     </div>
