@@ -81,6 +81,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "shopping-cart-storage",
+      skipHydration: true,
     }
   )
 );
