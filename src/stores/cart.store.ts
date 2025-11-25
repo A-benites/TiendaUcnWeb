@@ -1,76 +1,86 @@
-"use client";
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { CartState } from "@/models/cart.types";
 import { ProductDetail } from "@/models/product.types";
-import { useCartStore } from "@/stores/cart.store";
-import { ShoppingCart, Plus, Minus } from "lucide-react";
+import { toast } from "sonner";
 
-interface AddToCartControlProps {
-  product: ProductDetail;
-}
+export const useCartStore = create<CartState>()(
+  persist(
+    (set, get) => ({
+      items: [],
 
-export function AddToCartControl({ product }: AddToCartControlProps) {
-  const [quantity, setQuantity] = useState(1);
-  const addItem = useCartStore((state) => state.addItem);
+      addItem: (product: ProductDetail, quantity: number) => {
+        const currentItems = get().items;
+        const existingItem = currentItems.find((item) => item.id === product.id);
 
-  const handleIncrement = () => {
-    if (quantity < product.stock) setQuantity((prev) => prev + 1);
-  };
+        if (existingItem) {
+          const newQuantity = existingItem.quantity + quantity;
 
-  const handleDecrement = () => {
-    if (quantity > 1) setQuantity((prev) => prev - 1);
-  };
+          if (newQuantity > product.stock) {
+            toast.error(`No hay suficiente stock. Máximo disponible: ${product.stock}`);
+            return;
+          }
 
-  const handleAddToCart = () => {
-    addItem(product, quantity);
-  };
+          set({
+            items: currentItems.map((item) =>
+              item.id === product.id ? { ...item, quantity: newQuantity } : item
+            ),
+          });
+          toast.success("Cantidad actualizada en el carrito");
+        } else {
+          if (quantity > product.stock) {
+            toast.error("La cantidad excede el stock disponible");
+            return;
+          }
 
-  // Si no hay stock o no está disponible
-  if (product.stock === 0 || !product.isAvailable) {
-    return (
-      <Button disabled variant="secondary" className="w-full md:w-auto">
-        Agotado
-      </Button>
-    );
-  }
+          set({ items: [...currentItems, { ...product, quantity }] });
+          toast.success("Producto agregado al carrito");
+        }
+      },
 
-  return (
-    <div className="flex flex-col sm:flex-row gap-4 items-center mt-6">
-      <div className="flex items-center border rounded-md">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleDecrement}
-          disabled={quantity <= 1}
-          className="h-10 w-10"
-        >
-          <Minus className="h-4 w-4" />
-        </Button>
+      removeItem: (productId: number) => {
+        set({ items: get().items.filter((item) => item.id !== productId) });
+        toast.info("Producto eliminado del carrito");
+      },
 
-        <div className="w-12 text-center font-medium">
-          {quantity}
-        </div>
+      updateQuantity: (productId: number, quantity: number) => {
+        const item = get().items.find((i) => i.id === productId);
+        if (!item) return;
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleIncrement}
-          disabled={quantity >= product.stock}
-          className="h-10 w-10"
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
-      </div>
+        if (quantity > item.stock) {
+          toast.error(`Stock máximo alcanzado (${item.stock})`);
+          return;
+        }
 
-      <Button onClick={handleAddToCart} className="w-full md:w-auto gap-2">
-        <ShoppingCart className="h-4 w-4" />
-        Agregar al Carrito
-      </Button>
+        if (quantity < 1) return;
 
-      <span className="text-sm text-muted-foreground">
-        {product.stock} disponibles
-      </span>
-    </div>
-  );
-}
+        set({
+          items: get().items.map((item) => (item.id === productId ? { ...item, quantity } : item)),
+        });
+      },
+
+      clearCart: () => {
+        set({ items: [] });
+        toast.info("Carrito vaciado");
+      },
+
+      getTotalItems: () => {
+        return get().items.reduce((total, item) => total + item.quantity, 0);
+      },
+
+      getTotalPrice: () => {
+        return get().items.reduce((total, item) => {
+          const price =
+            typeof item.finalPrice === "string"
+              ? parseFloat(item.finalPrice.replace(/[^0-9]/g, ""))
+              : item.finalPrice;
+
+          return total + price * item.quantity;
+        }, 0);
+      },
+    }),
+    {
+      name: "shopping-cart-storage",
+    }
+  )
+);

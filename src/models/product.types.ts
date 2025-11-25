@@ -23,6 +23,7 @@ export interface ProductDetail {
   id: number;
   title: string;
   description: string;
+  mainImageURL: string;
   imagesURL: string[];
   price: string;
   discount: number;
