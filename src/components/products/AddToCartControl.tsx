@@ -48,7 +48,9 @@ export function AddToCartControl({ product }: AddToCartControlProps) {
           <Minus className="h-4 w-4" />
         </Button>
 
-        <div className="w-12 text-center font-medium">{quantity}</div>
+        <div className="w-12 text-center font-medium">
+          {quantity}
+        </div>
 
         <Button
           variant="ghost"
@@ -66,7 +68,9 @@ export function AddToCartControl({ product }: AddToCartControlProps) {
         Agregar al Carrito
       </Button>
 
-      <span className="text-sm text-muted-foreground">{product.stock} disponibles</span>
+      <span className="text-sm text-muted-foreground">
+        {product.stock} disponibles
+      </span>
     </div>
   );
 }
