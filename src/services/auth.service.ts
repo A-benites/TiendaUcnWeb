@@ -1,4 +1,5 @@
 import { api } from "@/lib/axios";
+import { User } from "@/stores/auth.store";
 
 // Interfaces para las respuestas de autenticación
 export interface ApiResponse<T> {
@@ -66,6 +67,18 @@ export const authService = {
   async resendVerificationCode(email: string) {
     const { data } = await api.post<ApiResponse<string>>("/auth/resend-email-verification-code", {
       email,
+    });
+    return data;
+  },
+
+  /**
+   * Obtiene el perfil del usuario autenticado
+   */
+  async getProfile(token: string) {
+    const { data } = await api.get<ApiResponse<User>>("/user/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     return data;
   },

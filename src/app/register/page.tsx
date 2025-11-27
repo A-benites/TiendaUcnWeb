@@ -132,8 +132,7 @@ const registerSchema = z
         const age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
         const actualAge =
-          monthDiff < 0 ||
-            (monthDiff === 0 && today.getDate() < birthDate.getDate())
+          monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())
             ? age - 1
             : age;
         return actualAge >= 18;
@@ -143,9 +142,7 @@ const registerSchema = z
       .min(1, "El RUT es obligatorio")
       .refine(validateRut, "El RUT ingresado no es válido"),
     email: z.string().email("El correo electrónico no es válido"),
-    phoneNumber: z
-      .string()
-      .regex(/^\+569\d{8}$/, "El formato debe ser +569xxxxxxxx"),
+    phoneNumber: z.string().regex(/^\+569\d{8}$/, "El formato debe ser +569xxxxxxxx"),
     password: z
       .string()
       .min(8, "La contraseña debe tener al menos 8 caracteres")
@@ -275,8 +272,7 @@ export default function RegisterPage() {
       toast.success("¡Cuenta verificada exitosamente!");
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
-      const message =
-        axiosError.response?.data?.message || "Código inválido o expirado";
+      const message = axiosError.response?.data?.message || "Código inválido o expirado";
       toast.error(message);
       setVerificationCode("");
     } finally {
@@ -295,8 +291,7 @@ export default function RegisterPage() {
       toast.success("Código reenviado exitosamente");
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
-      const message =
-        axiosError.response?.data?.message || "Error al reenviar el código";
+      const message = axiosError.response?.data?.message || "Error al reenviar el código";
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -304,9 +299,7 @@ export default function RegisterPage() {
   };
 
   // Máscara email
-  const maskedEmail = email
-    ? email.replace(/(.{2})(.*)(@.*)/, "$1***$3")
-    : "";
+  const maskedEmail = email ? email.replace(/(.{2})(.*)(@.*)/, "$1***$3") : "";
 
   // ==================== RENDER ====================
   return (
@@ -323,23 +316,21 @@ export default function RegisterPage() {
               return (
                 <div key={s} className="flex items-center">
                   <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-all ${isCurrent
+                    className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-all ${
+                      isCurrent
                         ? "bg-primary text-primary-foreground"
                         : isCompleted
                           ? "bg-green-500 text-white"
                           : "bg-muted text-muted-foreground"
-                      }`}
+                    }`}
                   >
-                    {isCompleted ? (
-                      <CheckCircle2 className="h-5 w-5" />
-                    ) : (
-                      i + 1
-                    )}
+                    {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : i + 1}
                   </div>
                   {i < 2 && (
                     <div
-                      className={`mx-2 h-0.5 w-8 transition-colors sm:w-12 ${isCompleted ? "bg-green-500" : "bg-muted"
-                        }`}
+                      className={`mx-2 h-0.5 w-8 transition-colors sm:w-12 ${
+                        isCompleted ? "bg-green-500" : "bg-muted"
+                      }`}
                     />
                   )}
                 </div>
@@ -361,19 +352,14 @@ export default function RegisterPage() {
                 <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                   <User className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="text-center text-2xl">
-                  Crear Cuenta
-                </CardTitle>
+                <CardTitle className="text-center text-2xl">Crear Cuenta</CardTitle>
                 <CardDescription className="text-center">
                   Completa tus datos para registrarte en Tienda UCN
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-4"
-                  >
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     {/* Nombre y Apellido */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <FormField
@@ -412,19 +398,14 @@ export default function RegisterPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Género</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger className="w-full">
                                   <SelectValue placeholder="Seleccionar" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="Masculino">
-                                  Masculino
-                                </SelectItem>
+                                <SelectItem value="Masculino">Masculino</SelectItem>
                                 <SelectItem value="Femenino">Femenino</SelectItem>
                                 <SelectItem value="Otro">Otro</SelectItem>
                               </SelectContent>
@@ -479,11 +460,7 @@ export default function RegisterPage() {
                         <FormItem>
                           <FormLabel>Correo electrónico</FormLabel>
                           <FormControl>
-                            <Input
-                              type="email"
-                              placeholder="usuario@ejemplo.com"
-                              {...field}
-                            />
+                            <Input type="email" placeholder="usuario@ejemplo.com" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -498,15 +475,9 @@ export default function RegisterPage() {
                         <FormItem>
                           <FormLabel>Teléfono</FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder="+569xxxxxxxx"
-                              {...field}
-                              maxLength={12}
-                            />
+                            <Input placeholder="+569xxxxxxxx" {...field} maxLength={12} />
                           </FormControl>
-                          <FormDescription>
-                            Formato: +569xxxxxxxx
-                          </FormDescription>
+                          <FormDescription>Formato: +569xxxxxxxx</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -545,17 +516,16 @@ export default function RegisterPage() {
                                 {[...Array(5)].map((_, i) => (
                                   <div
                                     key={i}
-                                    className={`h-1.5 flex-1 rounded-full transition-colors ${i < passwordStrength
+                                    className={`h-1.5 flex-1 rounded-full transition-colors ${
+                                      i < passwordStrength
                                         ? strengthColors[passwordStrength - 1]
                                         : "bg-muted"
-                                      }`}
+                                    }`}
                                   />
                                 ))}
                               </div>
                               <p className="text-xs text-muted-foreground">
-                                Fortaleza:{" "}
-                                {strengthLabels[passwordStrength - 1] ||
-                                  "Muy débil"}
+                                Fortaleza: {strengthLabels[passwordStrength - 1] || "Muy débil"}
                               </p>
                             </div>
                           )}
@@ -580,9 +550,7 @@ export default function RegisterPage() {
                               />
                               <button
                                 type="button"
-                                onClick={() =>
-                                  setShowConfirmPassword(!showConfirmPassword)
-                                }
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                               >
                                 {showConfirmPassword ? (
@@ -598,11 +566,7 @@ export default function RegisterPage() {
                       )}
                     />
 
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={isLoading}
-                    >
+                    <Button type="submit" className="w-full" disabled={isLoading}>
                       {isLoading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -621,10 +585,7 @@ export default function RegisterPage() {
               <CardFooter className="justify-center">
                 <p className="text-sm text-muted-foreground">
                   ¿Ya tienes cuenta?{" "}
-                  <Link
-                    href="/login"
-                    className="text-primary hover:underline"
-                  >
+                  <Link href="/login" className="text-primary hover:underline">
                     Inicia Sesión
                   </Link>
                 </p>
@@ -639,14 +600,10 @@ export default function RegisterPage() {
                 <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                   <Mail className="h-6 w-6 text-primary" />
                 </div>
-                <CardTitle className="text-center text-2xl">
-                  Verifica tu correo
-                </CardTitle>
+                <CardTitle className="text-center text-2xl">Verifica tu correo</CardTitle>
                 <CardDescription className="text-center">
                   Enviamos un código de 6 dígitos a{" "}
-                  <span className="font-medium text-foreground">
-                    {maskedEmail}
-                  </span>
+                  <span className="font-medium text-foreground">{maskedEmail}</span>
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -682,9 +639,7 @@ export default function RegisterPage() {
                     className="w-full"
                   >
                     <RefreshCw className="mr-2 h-4 w-4" />
-                    {resendCooldown > 0
-                      ? `Reenviar en ${resendCooldown}s`
-                      : "Reenviar código"}
+                    {resendCooldown > 0 ? `Reenviar en ${resendCooldown}s` : "Reenviar código"}
                   </Button>
 
                   <Button
@@ -711,19 +666,13 @@ export default function RegisterPage() {
                 <div className="mx-auto mb-2 flex h-16 w-16 animate-bounce items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
                   <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
                 </div>
-                <CardTitle className="text-center text-2xl">
-                  ¡Cuenta creada!
-                </CardTitle>
+                <CardTitle className="text-center text-2xl">¡Cuenta creada!</CardTitle>
                 <CardDescription className="text-center">
-                  Tu cuenta ha sido verificada exitosamente. Ya puedes iniciar
-                  sesión.
+                  Tu cuenta ha sido verificada exitosamente. Ya puedes iniciar sesión.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button
-                  onClick={() => router.push("/login")}
-                  className="w-full"
-                >
+                <Button onClick={() => router.push("/login")} className="w-full">
                   Ir a iniciar sesión
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
