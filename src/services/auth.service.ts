@@ -1,12 +1,26 @@
 import { api } from "@/lib/axios";
 
-// Interfaces para la respuesta del login
+// Interfaces para las respuestas de autenticación
 export interface LoginResponse {
   token: string;
   user: {
     email: string;
     role: string;
   };
+}
+
+export interface RegisterResponse {
+  token: string;
+  user: {
+    email: string;
+    role: string;
+  };
+}
+
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
 }
 
 export const authService = {
@@ -16,6 +30,12 @@ export const authService = {
       email,
       password,
     });
+    return data;
+  },
+
+  async register(userData: RegisterData) {
+    // Ajusta la URL '/auth/register' según tu backend real
+    const { data } = await api.post<RegisterResponse>("/auth/register", userData);
     return data;
   },
 };
