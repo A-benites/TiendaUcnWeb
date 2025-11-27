@@ -1,11 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { getProducts, getProductById } from "@/services/product.service";
+import { getProducts, getProductById, GetProductsParams } from "@/services/product.service";
 import { ProductListResponse, ProductDetail } from "@/models/product.types";
 
-export function useProducts(search?: string) {
+export function useProducts(params: GetProductsParams = {}) {
+  const { search, page = 1, pageSize = 12 } = params;
+
   return useQuery<ProductListResponse>({
-    queryKey: ["products", search],
-    queryFn: () => getProducts(search),
+    queryKey: ["products", search, page, pageSize],
+    queryFn: () => getProducts({ search, page, pageSize }),
+    placeholderData: (previousData) => previousData, // Mantiene datos anteriores mientras carga
   });
 }
 
