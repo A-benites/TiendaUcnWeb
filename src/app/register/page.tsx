@@ -116,7 +116,7 @@ const registerSchema = z
         "El apellido solo puede contener letras, espacios y guiones"
       ),
     gender: z.enum(["Masculino", "Femenino", "Otro"], {
-      required_error: "Selecciona un género",
+      message: "Selecciona un género",
     }),
     birthDate: z
       .string()
@@ -195,6 +195,7 @@ export default function RegisterPage() {
       const timer = setTimeout(() => setResendCooldown((prev) => prev - 1), 1000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [resendCooldown]);
 
   // Indicador de fortaleza de contraseña
