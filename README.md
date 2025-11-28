@@ -20,6 +20,9 @@ Make sure you have installed on your system:
 - **Node.js** >= 18.17.0 (latest LTS version recommended)
 - **npm** >= 9.0.0
 - **Git** to clone the repository
+- **Backend API** - You need to clone and run the backend repository: [TiendaUcnApi](https://github.com/A-benites/TiendaUcnApi)
+
+> ⚠️ **Important:** This frontend application requires the backend API to be running. Make sure to clone both repositories and start the backend before running this application.
 
 ## 🚀 Technologies Used
 
@@ -38,14 +41,22 @@ Make sure you have installed on your system:
 
 ## 📦 Installation
 
-1. **Clone the repository:**
+### 1. Clone both repositories
 
+**Backend (required first):**
+```bash
+git clone https://github.com/A-benites/TiendaUcnApi.git
+cd TiendaUcnApi
+# Follow the backend README for setup instructions
+```
+
+**Frontend:**
 ```bash
 git clone https://github.com/A-benites/TiendaUcnWeb.git
 cd TiendaUcnWeb
 ```
 
-2. **Install dependencies:**
+### 2. Install frontend dependencies:
 
 ```bash
 npm install
