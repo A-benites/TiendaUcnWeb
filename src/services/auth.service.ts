@@ -1,5 +1,6 @@
 import { api } from "@/lib/axios";
 import { User } from "@/stores/auth.store";
+import { mapGenderToString, GenderEnum, GenderString } from "@/models/user.types";
 
 // Interfaces para las respuestas de autenticación
 export interface ApiResponse<T> {
@@ -15,7 +16,7 @@ export interface LoginResponse {
 export interface RegisterData {
   firstName: string;
   lastName: string;
-  gender: "Masculino" | "Femenino" | "Otro";
+  gender: GenderString;
   birthDate: string; // formato: YYYY-MM-DD
   rut: string;
   email: string;
@@ -31,6 +32,25 @@ export interface VerifyEmailData {
 
 export interface ResendCodeData {
   email: string;
+}
+
+// Raw user type from backend (gender can be numeric)
+interface RawUser {
+  email: string;
+  firstName: string;
+  lastName: string;
+  rut: string;
+  gender: GenderEnum | GenderString;
+  birthDate: string;
+  phoneNumber?: string;
+}
+
+// Helper to transform raw user to User type
+function transformUser(raw: RawUser): User {
+  return {
+    ...raw,
+    gender: mapGenderToString(raw.gender as GenderEnum | GenderString),
+  };
 }
 
 export const authService = {
@@ -75,11 +95,14 @@ export const authService = {
    * Obtiene el perfil del usuario autenticado
    */
   async getProfile(token: string) {
-    const { data } = await api.get<ApiResponse<User>>("/user/profile", {
+    const { data } = await api.get<ApiResponse<RawUser>>("/user/profile", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    return data;
+    return {
+      message: data.message,
+      data: transformUser(data.data),
+    };
   },
 };
