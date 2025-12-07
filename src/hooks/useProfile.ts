@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userService } from "@/services/user.service";
-import { UpdateProfileData, ChangePasswordData, UserProfile } from "@/models/user.types";
+import { UpdateProfileData, ChangePasswordData, UserProfile, VerifyEmailChangeData } from "@/models/user.types";
 import { useAuthStore } from "@/stores/auth.store";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -37,19 +37,39 @@ export function useProfile() {
  */
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
-  const updateUser = useAuthStore((state) => state.updateUser);
 
   return useMutation({
     mutationFn: (data: UpdateProfileData) => userService.updateProfile(data),
     onSuccess: (response) => {
-      // Update the query cache
-      queryClient.setQueryData<UserProfile>(profileKeys.detail(), response.data);
-      // Update the auth store
-      updateUser(response.data);
-      toast.success("Profile updated successfully");
+      // Invalidate and refetch profile to get updated data
+      queryClient.invalidateQueries({ queryKey: profileKeys.detail() });
+      toast.success(response.message || "Profile updated successfully");
     },
     onError: (error: AxiosError<ApiError>) => {
       const message = error.response?.data?.message || "Failed to update profile";
+      toast.error(message);
+    },
+  });
+}
+
+/**
+ * Hook to verify email change
+ */
+export function useVerifyEmailChange() {
+  const queryClient = useQueryClient();
+  const updateUser = useAuthStore((state) => state.updateUser);
+
+  return useMutation({
+    mutationFn: (data: VerifyEmailChangeData) => userService.verifyEmailChange(data),
+    onSuccess: (response, variables) => {
+      // Invalidate and refetch profile
+      queryClient.invalidateQueries({ queryKey: profileKeys.detail() });
+      // Update the auth store with the new email
+      updateUser({ email: variables.newEmail });
+      toast.success(response.message || "Email changed successfully");
+    },
+    onError: (error: AxiosError<ApiError>) => {
+      const message = error.response?.data?.message || "Failed to verify email change";
       toast.error(message);
     },
   });
