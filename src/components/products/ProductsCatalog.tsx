@@ -23,12 +23,8 @@ export function ProductsCatalog() {
     // Read initial values from URL
     const initialSearch = searchParams.get("search") ?? "";
     const initialPage = parseInt(searchParams.get("page") ?? "1", 10);
-    const initialCategoryId = searchParams.get("categoryId")
-        ? parseInt(searchParams.get("categoryId")!, 10)
-        : undefined;
-    const initialBrandId = searchParams.get("brandId")
-        ? parseInt(searchParams.get("brandId")!, 10)
-        : undefined;
+    const initialCategory = searchParams.get("category") ?? undefined;
+    const initialBrand = searchParams.get("brand") ?? undefined;
     const initialMinPrice = searchParams.get("minPrice")
         ? parseInt(searchParams.get("minPrice")!, 10)
         : undefined;
@@ -43,8 +39,8 @@ export function ProductsCatalog() {
     const [currentPage, setCurrentPage] = useState(initialPage);
     const [sortBy, setSortBy] = useState<SortOption | undefined>(initialSortBy);
     const [filters, setFilters] = useState<ProductFilters>({
-        categoryId: initialCategoryId,
-        brandId: initialBrandId,
+        category: initialCategory,
+        brand: initialBrand,
         minPrice: initialMinPrice,
         maxPrice: initialMaxPrice,
     });
@@ -55,8 +51,8 @@ export function ProductsCatalog() {
             search?: string;
             page?: number;
             sortBy?: SortOption;
-            categoryId?: number;
-            brandId?: number;
+            category?: string;
+            brand?: string;
             minPrice?: number;
             maxPrice?: number;
         }) => {
@@ -65,8 +61,8 @@ export function ProductsCatalog() {
             if (params.search) newParams.set("search", params.search);
             if (params.page && params.page > 1) newParams.set("page", params.page.toString());
             if (params.sortBy) newParams.set("sortBy", params.sortBy);
-            if (params.categoryId) newParams.set("categoryId", params.categoryId.toString());
-            if (params.brandId) newParams.set("brandId", params.brandId.toString());
+            if (params.category) newParams.set("category", params.category);
+            if (params.brand) newParams.set("brand", params.brand);
             if (params.minPrice) newParams.set("minPrice", params.minPrice.toString());
             if (params.maxPrice) newParams.set("maxPrice", params.maxPrice.toString());
 
@@ -101,12 +97,8 @@ export function ProductsCatalog() {
         const urlSearch = searchParams.get("search") ?? "";
         const urlPage = parseInt(searchParams.get("page") ?? "1", 10);
         const urlSortBy = (searchParams.get("sortBy") as SortOption) ?? undefined;
-        const urlCategoryId = searchParams.get("categoryId")
-            ? parseInt(searchParams.get("categoryId")!, 10)
-            : undefined;
-        const urlBrandId = searchParams.get("brandId")
-            ? parseInt(searchParams.get("brandId")!, 10)
-            : undefined;
+        const urlCategory = searchParams.get("category") ?? undefined;
+        const urlBrand = searchParams.get("brand") ?? undefined;
         const urlMinPrice = searchParams.get("minPrice")
             ? parseInt(searchParams.get("minPrice")!, 10)
             : undefined;
@@ -119,8 +111,8 @@ export function ProductsCatalog() {
         setCurrentPage(urlPage);
         setSortBy(urlSortBy);
         setFilters({
-            categoryId: urlCategoryId,
-            brandId: urlBrandId,
+            category: urlCategory,
+            brand: urlBrand,
             minPrice: urlMinPrice,
             maxPrice: urlMaxPrice,
         });
@@ -131,8 +123,8 @@ export function ProductsCatalog() {
         search: debouncedSearch || undefined,
         page: currentPage,
         pageSize: PAGE_SIZE,
-        categoryId: filters.categoryId,
-        brandId: filters.brandId,
+        category: filters.category,
+        brand: filters.brand,
         minPrice: filters.minPrice,
         maxPrice: filters.maxPrice,
         sortBy: sortBy as ProductSortOption,
@@ -200,8 +192,8 @@ export function ProductsCatalog() {
     // Count active filters
     const activeFiltersCount = useMemo(() => {
         let count = 0;
-        if (filters.categoryId) count++;
-        if (filters.brandId) count++;
+        if (filters.category) count++;
+        if (filters.brand) count++;
         if (filters.minPrice !== undefined) count++;
         if (filters.maxPrice !== undefined) count++;
         return count;
@@ -270,16 +262,16 @@ export function ProductsCatalog() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                     {/* Active filters badges */}
                     <div className="flex flex-wrap items-center gap-2">
-                        {filters.categoryId && (
+                        {filters.category && (
                             <FilterBadge
-                                label={`Categoría: ${filters.categoryId}`}
-                                onRemove={() => handleFiltersChange({ ...filters, categoryId: undefined })}
+                                label={`Categoría: ${filters.category}`}
+                                onRemove={() => handleFiltersChange({ ...filters, category: undefined })}
                             />
                         )}
-                        {filters.brandId && (
+                        {filters.brand && (
                             <FilterBadge
-                                label={`Marca: ${filters.brandId}`}
-                                onRemove={() => handleFiltersChange({ ...filters, brandId: undefined })}
+                                label={`Marca: ${filters.brand}`}
+                                onRemove={() => handleFiltersChange({ ...filters, brand: undefined })}
                             />
                         )}
                         {(filters.minPrice !== undefined || filters.maxPrice !== undefined) && (
