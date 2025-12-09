@@ -1,12 +1,13 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { GenderString } from "@/models/user.types";
 
 export interface User {
   email: string;
   firstName: string;
   lastName: string;
   rut: string;
-  gender: "Masculino" | "Femenino" | "Otro";
+  gender: GenderString;
   birthDate: string;
   phoneNumber?: string;
 }
