@@ -3,11 +3,20 @@ import { getProducts, getProductById, GetProductsParams } from "@/services/produ
 import { ProductListResponse, ProductDetail } from "@/models/product.types";
 
 export function useProducts(params: GetProductsParams = {}) {
-  const { search, page = 1, pageSize = 12 } = params;
+  const {
+    search,
+    page = 1,
+    pageSize = 12,
+    categoryId,
+    brandId,
+    minPrice,
+    maxPrice,
+    sortBy,
+  } = params;
 
   return useQuery<ProductListResponse>({
-    queryKey: ["products", search, page, pageSize],
-    queryFn: () => getProducts({ search, page, pageSize }),
+    queryKey: ["products", { search, page, pageSize, categoryId, brandId, minPrice, maxPrice, sortBy }],
+    queryFn: () => getProducts({ search, page, pageSize, categoryId, brandId, minPrice, maxPrice, sortBy }),
     placeholderData: (previousData) => previousData, // Mantiene datos anteriores mientras carga
   });
 }
