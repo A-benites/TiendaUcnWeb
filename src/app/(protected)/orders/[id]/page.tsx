@@ -23,8 +23,12 @@ export default function OrderDetailPage() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Detalle del Pedido #{order.code} 📄</h1>
-      <p className="mb-6 text-gray-600">Fecha del Pedido: {format(new Date(order.createdAt), 'dd MMMM yyyy HH:mm')}</p>
-
+      <p className="mb-6 text-gray-600">
+        Fecha del Pedido: {order.createdAt
+          ? format(new Date(order.createdAt), 'dd MMMM yyyy HH:mm') 
+          : 'Fecha no registrada'
+        }
+      </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Resumen de Totales */}
         <div className="md:col-span-1 bg-white p-6 rounded-lg shadow-lg">
@@ -56,7 +60,7 @@ export default function OrderDetailPage() {
             {order.orderItems.map((item) => (
               <div key={item.id} className="flex gap-4 border-b pb-4 last:border-b-0 last:pb-0">
                 {/* Aquí iría la imagen del producto */}
-                <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0" 
+                <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0"
                      style={{backgroundImage: `url(${item.imageAtMoment})`, backgroundSize: 'cover', backgroundPosition: 'center'}}
                 />
                 <div className="flex-grow">

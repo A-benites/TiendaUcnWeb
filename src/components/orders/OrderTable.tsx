@@ -30,8 +30,11 @@ export const OrderTable = ({ orders }: OrderTableProps) => {
                 <Link href={`/orders/${order.id}`}>{order.code}</Link>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm')}
-              </td>
+                {order.createdAt 
+                ? format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm') 
+                : 'N/A'
+            }
+                </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800 text-right">
                 {toMoney(order.total)}
               </td>

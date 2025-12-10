@@ -21,7 +21,7 @@ export interface OrderDTO {
   code: string;
   total: number;
   subTotal: number;
-  createdAt: string; // La fecha viene como string ISO de C#
+  createdAt: string | null;
   orderItems: OrderItemDTO[];
 }
 
@@ -45,12 +45,11 @@ export async function getOrders(filter: UserOrderFilterDTO): Promise<OrderListDT
   const params = {
     page: filter.page,
     pageSize: filter.pageSize,
-    ...(filter.code && { code: filter.code }), 
+    ...(filter.code && { code: filter.code }),
   };
-  
-  // Usamos 'api' que ya tiene el baseURL y el token de Auth
+
   const response = await api.get('/api/orders', { params });
-  return response.data.data; 
+  return response.data.data;
 }
 
 export async function getOrderDetail(id: number): Promise<OrderDTO> {
@@ -63,17 +62,16 @@ const ORDERS_QUERY_KEY = 'userOrders';
 
 export const useOrdersQuery = (
   filter: UserOrderFilterDTO
-): UseQueryResult<OrderListDTO> => {
-  return useQuery({
+): UseQueryResult<OrderListDTO, Error> => {
+  return useQuery<OrderListDTO, Error>({
     queryKey: [ORDERS_QUERY_KEY, filter],
     queryFn: () => getOrders(filter),
-    staleTime: 1000 * 60 * 5, 
-
-    placeholderData: (previousData) => previousData, 
+    staleTime: 1000 * 60 * 5,
+    placeholderData: (previousData) => previousData,
   });
 };
-export const useOrderDetailQuery = (id: number): UseQueryResult<OrderDTO> => {
-  return useQuery({
+export const useOrderDetailQuery = (id: number): UseQueryResult<OrderDTO, Error> => {
+  return useQuery<OrderDTO, Error>({
     queryKey: ['orderDetail', id],
     queryFn: () => getOrderDetail(id),
     enabled: id > 0,

@@ -1,4 +1,3 @@
-// src/components/orders/OrderList.tsx
 
 'use client';
 
