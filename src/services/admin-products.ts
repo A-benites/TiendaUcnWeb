@@ -63,28 +63,45 @@ const ADMIN_PRODUCTS_QUERY_KEY = 'adminProductsList';
 
 
 export async function getAdminProducts(params: AdminProductSearchParams): Promise<ListedProductsForAdminDTO> {
+    
+    // ⚠️ CORRECCIÓN DE NOMBRES DE PARÁMETROS para C#: PageNumber, PageSize, SearchTerm
     const queryParams: Record<string, any> = {
+        // Mapeo: frontend.page -> backend.PageNumber
         PageNumber: Number(params.page),
+        
+        // Mapeo: frontend.pageSize -> backend.PageSize (el DTO acepta null, pero enviamos el número)
         PageSize: Number(params.pageSize),
     };
+    
+    // Solo incluye el filtro de búsqueda si tiene un valor real.
     if (params.search && params.search.trim() !== '') {
-        queryParams.SearchTerm = params.search.trim();
+        queryParams.SearchTerm = params.search.trim(); // Mapeo: frontend.search -> backend.SearchTerm
     }
+    
+    // Si tu SearchParamsDTO tiene otros campos requeridos (como SortBy), deberías incluirlos aquí.
+    // Ejemplo: queryParams.SortBy = 'Newest'; 
+    
     try {
         const response = await api.get('/admin/products', { params: queryParams });
-        return response.data.data;
+        return response.data.data; // Retorno en caso de éxito
+        
     } catch (err) {
+        // Manejamos el error 400 (Bad Request) o 401/403 (Contingencia)
         console.error("Error fetching admin products. Check parameters or auth:", err);
         
         const error = err as AxiosError;
+        
+        // Si el error es un código de cliente (4xx), devolvemos una lista vacía.
         if (error.response && error.response.status >= 400 && error.response.status < 500) {
+            
+            // Retornamos el DTO vacío para que useQuery no marque isError = true
             return {
                 products: [],
                 totalCount: 0,
-                currentPage: params.page,
+                currentPage: params.page, // Usamos el número de página solicitado
                 pageSize: params.pageSize,
                 totalPages: 0,
-            };
+            }; // Retorno 1 del catch (Error 4xx)
         }
         throw error; // Retorno 2 del catch (Error 5xx o Network)
     }
