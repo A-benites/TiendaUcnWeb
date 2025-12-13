@@ -73,11 +73,13 @@ export default function OrderDetailPage() {
         Volver al historial
       </Button>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">Pedido #{order.code}</h1>
-          <div className="flex items-center gap-2 text-muted-foreground mt-2">
-            <Calendar className="h-4 w-4" />
+          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+            Pedido #{order.code}
+          </h1>
+          <div className="flex items-center gap-2 text-muted-foreground mt-2 text-sm md:text-base">
+            <Calendar className="h-4 w-4 flex-shrink-0" />
             <p>
               Realizado el {order.createdAt ? formatDate(order.createdAt) : "Fecha no registrada"}
             </p>
@@ -99,9 +101,9 @@ export default function OrderDetailPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             {order.orderItems.map((item) => (
-              <div key={item.id} className="flex gap-4">
+              <div key={item.id} className="flex flex-col sm:flex-row gap-4">
                 {/* Product Image */}
-                <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border bg-muted">
+                <div className="relative h-32 sm:h-24 w-full sm:w-24 flex-shrink-0 overflow-hidden rounded-md border bg-muted">
                   <Image
                     src={item.imageAtMoment || "/placeholder.png"}
                     alt={item.titleAtMoment}
@@ -110,14 +112,15 @@ export default function OrderDetailPage() {
                     unoptimized
                   />
                 </div>
-                <div className="flex flex-1 flex-col justify-between">
+                <div className="flex flex-1 flex-col justify-between gap-2">
                   <div>
-                    <h3 className="font-medium text-lg line-clamp-1">{item.titleAtMoment}</h3>
-                    <div className="mt-1 flex text-sm text-muted-foreground">
-                      <p className="border-r pr-2 mr-2">
+                    <h3 className="font-medium text-base sm:text-lg line-clamp-2">{item.titleAtMoment}</h3>
+                    <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                      <p>
                         Cantidad:{" "}
                         <span className="font-medium text-foreground">{item.quantity}</span>
                       </p>
+                      <span className="hidden sm:inline">•</span>
                       <p>
                         Precio unitario:{" "}
                         <span className="font-medium text-foreground">

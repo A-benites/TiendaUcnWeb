@@ -78,9 +78,9 @@ export default function CartPage() {
           {items.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-4">
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   {/* Imagen del producto */}
-                  <div className="relative w-24 h-24 shrink-0 rounded-md overflow-hidden bg-gray-100">
+                  <div className="relative w-full sm:w-24 h-32 sm:h-24 shrink-0 rounded-md overflow-hidden bg-gray-100">
                     <Image
                       src={item.mainImageURL || "/placeholder.png"}
                       alt={item.title}
@@ -93,7 +93,7 @@ export default function CartPage() {
                   {/* Información del producto */}
                   <div className="flex-1 min-w-0">
                     <Link href={`/products/${item.id}`}>
-                      <h3 className="font-semibold text-lg hover:underline line-clamp-2">
+                      <h3 className="font-semibold text-base sm:text-lg hover:underline line-clamp-2">
                         {item.title}
                       </h3>
                     </Link>
@@ -104,17 +104,8 @@ export default function CartPage() {
                   </div>
 
                   {/* Controles */}
-                  <div className="flex flex-col items-end justify-between">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setItemToDelete(item.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-
-                    <div className="flex items-center border rounded-md">
+                  <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-between gap-2">
+                    <div className="flex items-center border rounded-md order-1 sm:order-2">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -137,6 +128,15 @@ export default function CartPage() {
                         <Plus className="h-3 w-3" />
                       </Button>
                     </div>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setItemToDelete(item.id)}
+                      className="text-destructive hover:text-destructive order-2 sm:order-1"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </CardContent>

@@ -85,8 +85,8 @@ export const OrderList = () => {
         </div>
 
         {/* Search Form */}
-        <form onSubmit={handleSearch} className="flex gap-3">
-          <div className="relative flex-grow max-w-sm">
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-grow sm:max-w-sm">
             <Input
               type="text"
               placeholder="Buscar por código de pedido..."
@@ -96,7 +96,7 @@ export const OrderList = () => {
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           </div>
-          <Button type="submit" disabled={isFetching}>
+          <Button type="submit" disabled={isFetching} className="w-full sm:w-auto">
             {isFetching ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -114,20 +114,20 @@ export const OrderList = () => {
             <OrderTable orders={orderList.orders} />
 
             {/* Pagination Controls */}
-            <div className="flex justify-between items-center pt-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
                 disabled={page === 1 || isFetching}
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto order-1 sm:order-none"
               >
                 <ChevronLeft className="h-4 w-4" /> Anterior
               </Button>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-muted-foreground order-first sm:order-none text-center">
                 Página <span className="font-medium text-foreground">{orderList.currentPage}</span>{" "}
                 de <span className="font-medium text-foreground">{orderList.totalPages}</span>
-                <span className="ml-2 hidden sm:inline-block text-xs">
+                <span className="ml-2 text-xs">
                   ({orderList.totalCount} pedidos)
                 </span>
               </span>
@@ -136,7 +136,7 @@ export const OrderList = () => {
                 size="sm"
                 onClick={() => setPage((prev) => (prev < orderList.totalPages ? prev + 1 : prev))}
                 disabled={page === orderList.totalPages || isFetching}
-                className="gap-2"
+                className="gap-2 w-full sm:w-auto order-2 sm:order-none"
               >
                 Siguiente <ChevronRight className="h-4 w-4" />
               </Button>

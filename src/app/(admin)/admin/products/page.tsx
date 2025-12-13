@@ -27,7 +27,7 @@ export default function AdminProductsPage() {
   /**
    * <summary>Local state for the search input field.</summary>
    */
-  const [searchTerm, setSearchTerm] = useState(""); // 1. Implement service and useQuery for GET /api/admin/products (paginated and filtered)
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data, isLoading, isError, isFetching } = useAdminProductsQuery(params);
 
@@ -44,7 +44,6 @@ export default function AdminProductsPage() {
    * <param name="newPage">The target page number.</param>
    */
   const handlePageChange = (newPage: number) => {
-    // Safely access totalPages since data is checked later
     if (data && newPage > 0 && newPage <= data.totalPages) {
       setParams((prev) => ({ ...prev, page: newPage }));
     }
@@ -57,27 +56,23 @@ export default function AdminProductsPage() {
         Error loading products. Check API connection or authorization.
       </div>
     );
-  // Check if data is null (due to initial fetch or 4xx contingency)
   if (!data) {
     return <div className="text-center py-10 text-gray-500">No product data could be loaded.</div>;
   }
-  const productList = data; // Data is guaranteed to exist here
+  const productList = data;
 
   return (
     <>
-         {" "}
-      <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">Product Management 📦</h1>   {" "}
-        <button className="flex items-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors">
-              <FaPlus className="mr-2" /> New Product    {" "}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Product Management 📦</h1>
+        <button className="flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors w-full sm:w-auto">
+          <FaPlus className="mr-2" /> New Product
         </button>
-           {" "}
       </div>
-          {/* Control de Búsqueda */}   {" "}
-      <form onSubmit={handleSearch} className="mb-6 flex gap-3">
-           {" "}
+
+      {/* Control de Búsqueda */}
+      <form onSubmit={handleSearch} className="mb-6 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-grow">
-             {" "}
           <input
             type="text"
             placeholder="Search by title, brand, or category..."
@@ -85,49 +80,42 @@ export default function AdminProductsPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
           />
-             {" "}
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" /> 
-           {" "}
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         </div>
-           {" "}
         <button
           type="submit"
           disabled={isFetching}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-60"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-60 w-full sm:w-auto"
         >
-              {isFetching ? "Searching..." : "Search"}   {" "}
+          {isFetching ? "Searching..." : "Search"}
         </button>
-           {" "}
       </form>
-          {/* 2. Mostrar tabla de productos con acciones */}
-          <ProductTable products={productList.products} />    {/* 3. Implementar paginación */}   {" "}
-      <div className="flex justify-between items-center mt-6">
-           {" "}
+
+      {/* Tabla de productos */}
+      <ProductTable products={productList.products} />
+
+      {/* Paginación */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
         <button
           onClick={() => handlePageChange(productList.currentPage - 1)}
           disabled={productList.currentPage === 1 || isFetching}
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50 w-full sm:w-auto order-1 sm:order-none"
         >
-              Previous    {" "}
+          Previous
         </button>
-           {" "}
-        <span className="text-sm text-gray-700">
-              Page {productList.currentPage} of {productList.totalPages} ({productList.totalCount}{" "}
-          items)    {" "}
+        <span className="text-sm text-gray-700 order-first sm:order-none text-center">
+          Page {productList.currentPage} of {productList.totalPages} ({productList.totalCount} items)
         </span>
-           {" "}
         <button
           onClick={() => handlePageChange(productList.currentPage + 1)}
           disabled={productList.currentPage === productList.totalPages || isFetching}
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50 w-full sm:w-auto order-2 sm:order-none"
         >
-              Next    {" "}
+          Next
         </button>
-           {" "}
       </div>
-         {" "}
-      {isFetching && <p className="text-center text-sm text-indigo-500 mt-2">Fetching data...</p>} 
-       {" "}
+
+      {isFetching && <p className="text-center text-sm text-indigo-500 mt-2">Fetching data...</p>}
     </>
   );
 }

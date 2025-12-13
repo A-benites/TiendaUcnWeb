@@ -46,26 +46,27 @@ export const ProductTable = ({ products }: ProductTableProps) => {
   };
 
   return (
-    <div className="overflow-x-auto shadow-lg sm:rounded-lg">
-      <table className="min-w-full divide-y divide-gray-200">
+    <div className="overflow-x-auto shadow-lg rounded-lg border border-gray-200">
+      {/* Desktop Table View */}
+      <table className="min-w-full divide-y divide-gray-200 hidden md:table">
         <thead className="bg-gray-100">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               ID
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Product
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Price/Stock
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Status
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
               Last Update
             </th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th className="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
               Actions
             </th>
           </tr>
@@ -76,22 +77,22 @@ export const ProductTable = ({ products }: ProductTableProps) => {
 
             return (
               <tr key={product.id} className="hover:bg-gray-50 transition duration-150">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {product.id}
                 </td>
 
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <img
-                      className="h-10 w-10 rounded-full mr-4 object-cover"
+                      className="h-10 w-10 rounded-full mr-3 object-cover flex-shrink-0"
                       src={product.mainImageURL || "/placeholder-image.png"}
                       alt={product.title}
                     />
-                    <span className="text-sm font-medium text-gray-900">{product.title}</span>
+                    <span className="text-sm font-medium text-gray-900 truncate max-w-[200px]">{product.title}</span>
                   </div>
                 </td>
 
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
                   <p className="font-semibold">{product.price}</p>
                   <p
                     className={`text-xs ${product.stockIndicator === "Low" ? "text-red-500" : "text-green-500"}`}
@@ -100,21 +101,21 @@ export const ProductTable = ({ products }: ProductTableProps) => {
                   </p>
                 </td>
 
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 py-4 whitespace-nowrap">
                   <span
                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            ${product.isAvailable ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+                                            ${product.isAvailable ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
                   >
                     {product.isAvailable ? "Available" : "Inactive"}
                   </span>
                 </td>
 
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                   {format(new Date(product.updatedAt), "dd/MM/yy HH:mm")}
                 </td>
 
                 {/* Acciones */}
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-center">
                   <div className="flex justify-center space-x-3">
                     {/* Acción 1: Editar */}
                     <Link
@@ -127,7 +128,6 @@ export const ProductTable = ({ products }: ProductTableProps) => {
 
                     {/* Acción 2: Activar/Desactivar */}
                     <button
-                      // NOTE: Passing currentStatus and title requires modification of handleToggleStatus signature
                       onClick={() =>
                         handleToggleStatus(product.id, product.isAvailable, product.title)
                       }
@@ -150,6 +150,79 @@ export const ProductTable = ({ products }: ProductTableProps) => {
           })}
         </tbody>
       </table>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden divide-y divide-gray-200">
+        {products.map((product) => {
+          const isMutating = toggleMutation.isPending && toggleMutation.variables === product.id;
+
+          return (
+            <div key={product.id} className="p-4 bg-white">
+              <div className="flex items-start gap-3">
+                <img
+                  className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
+                  src={product.mainImageURL || "/placeholder-image.png"}
+                  alt={product.title}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {product.title}
+                      </p>
+                      <p className="text-xs text-gray-500">ID: {product.id}</p>
+                    </div>
+                    <span
+                      className={`px-2 py-0.5 text-xs font-semibold rounded-full flex-shrink-0
+                        ${product.isAvailable ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+                    >
+                      {product.isAvailable ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                  
+                  <div className="mt-2 flex items-center gap-4 text-sm">
+                    <span className="font-semibold text-gray-900">{product.price}</span>
+                    <span className={`text-xs ${product.stockIndicator === "Low" ? "text-red-500" : "text-green-500"}`}>
+                      Stock: {product.stock}
+                    </span>
+                  </div>
+                  
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-xs text-gray-400">
+                      {format(new Date(product.updatedAt), "dd/MM/yy HH:mm")}
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/admin/products/edit/${product.id}`}
+                        className="text-indigo-600 hover:text-indigo-900 p-1"
+                        title="Edit Product"
+                      >
+                        <FaEdit className="w-5 h-5" />
+                      </Link>
+                      <button
+                        onClick={() =>
+                          handleToggleStatus(product.id, product.isAvailable, product.title)
+                        }
+                        disabled={isMutating}
+                        className={`p-1 ${isMutating ? "opacity-50" : ""}`}
+                        title={product.isAvailable ? "Deactivate" : "Activate"}
+                      >
+                        {isMutating ? (
+                          <FaSpinner className="w-5 h-5 animate-spin text-gray-500" />
+                        ) : product.isAvailable ? (
+                          <FaToggleOn className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <FaToggleOff className="w-5 h-5 text-red-500" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
