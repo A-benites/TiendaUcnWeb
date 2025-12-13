@@ -69,8 +69,9 @@ export default function CheckoutPage() {
       // 3. Clear client cart and redirect
       clearCart();
 
-      // 4. Invalidate product queries to update stock
+      // 4. Invalidate product queries to update stock (both list and individual products)
       queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["product"] });
 
       toast.success("¡Pedido realizado con éxito!");
       router.push("/checkout/success");

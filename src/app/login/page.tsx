@@ -7,6 +7,7 @@ import * as z from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Componentes UI
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const callbackUrl = searchParams.get("callbackUrl") || "/products";
 
   const [isLoading, setIsLoading] = useState(false);
@@ -66,6 +68,11 @@ export default function LoginPage() {
       if (result?.error) {
         toast.error("Credenciales inválidas. Por favor intenta nuevamente.");
       } else {
+        // Clear any cached user-specific data from previous session
+        queryClient.removeQueries({ queryKey: ["userOrders"] });
+        queryClient.removeQueries({ queryKey: ["orderDetail"] });
+        queryClient.removeQueries({ queryKey: ["profile"] });
+        
         toast.success("¡Bienvenido!");
         router.push(callbackUrl);
         router.refresh(); // Refresh to update server components/session

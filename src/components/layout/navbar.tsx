@@ -4,11 +4,11 @@ import { useSyncExternalStore, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ShoppingCart,
   User,
   LogOut,
-  Settings,
   ChevronDown,
   Menu,
   X,
@@ -35,6 +35,7 @@ const emptySubscribe = () => () => {};
 
 export function Navbar() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Hidratación segura - esto retorna true solo en cliente después del mount
@@ -61,6 +62,11 @@ export function Navbar() {
   }, []);
 
   const handleLogout = async () => {
+    // Clear all user-specific query caches before signing out
+    queryClient.removeQueries({ queryKey: ["userOrders"] });
+    queryClient.removeQueries({ queryKey: ["orderDetail"] });
+    queryClient.removeQueries({ queryKey: ["profile"] });
+    
     await signOut({ redirect: false });
     toast.success("Sesión cerrada correctamente");
     router.push("/");
