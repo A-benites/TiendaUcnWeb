@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
@@ -7,9 +6,17 @@ import { ProductForm } from "@/components/admin/ProductForm";
 import { useProductDetailsQuery } from "@/services/admin-form-data";
 import { api } from "@/lib/axios";
 import toast from "react-hot-toast";
-import { ProductDetailForAdminDTO } from "@/services/admin-products"; // Asumiendo DTO
+import { ProductDetailForAdminDTO } from "@/services/admin-products";
 import { FaSpinner } from "react-icons/fa";
 
+/**
+ * <summary>
+ * Async function to handle product updates via API.
+ * </summary>
+ * <param name="id">The product ID to update.</param>
+ * <param name="formData">The FormData object containing updated fields and files.</param>
+ * <returns>A Promise resolving to the updated product details.</returns>
+ */
 async function updateProduct({
   id,
   formData,
@@ -17,7 +24,6 @@ async function updateProduct({
   id: number;
   formData: FormData;
 }): Promise<ProductDetailForAdminDTO> {
-  // Si tu backend tiene PUT /api/admin/products/{id} con [FromForm]
   const response = await api.put(`/admin/products/${id}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -26,14 +32,18 @@ async function updateProduct({
   return response.data.data;
 }
 
+/**
+ * <summary>
+ * Page component for editing an existing product.
+ * </summary>
+ * <returns>Renders the ProductForm in edit mode, pre-filled with data.</returns>
+ */
 export default function AdminEditProductPage() {
   const params = useParams();
   const productId = params.id ? parseInt(params.id as string) : null;
 
-  // 1. Fetch de datos iniciales
   const { data: initialData, isLoading: isFetching, isError } = useProductDetailsQuery(productId);
 
-  // 2. Mutación de actualización
   const updateMutation = useMutation<
     ProductDetailForAdminDTO,
     Error,

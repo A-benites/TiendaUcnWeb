@@ -1,12 +1,18 @@
-
 import { z } from "zod";
 
+/**
+ * <summary>
+ * Zod validation schema for the Product Create/Edit form.
+ * </summary>
+ * <remarks>
+ * Defines validation rules and transformations (preprocessing) to handle
+ * string-to-number conversions required by HTML inputs.
+ * </remarks>
+ */
 export const ProductFormSchema = z.object({
-  // Campos requeridos para C#
   title: z.string().min(3, "Title must be at least 3 characters long."),
   description: z.string().min(10, "Description must be at least 10 characters long."),
 
-  // Números que deben ser parseados y validados
   price: z.preprocess(
     (val) => parseFloat(String(val)),
     z.number().positive("Price must be greater than zero.")
@@ -20,7 +26,6 @@ export const ProductFormSchema = z.object({
     z.number().int().min(0, "Stock cannot be negative.")
   ),
 
-  // IDs de Select (deben ser números, validamos el parseo y que no sea 0/NaN)
   categoryId: z.preprocess(
     (val) => parseInt(String(val)),
     z.number().int().positive("Category is required.")
@@ -30,29 +35,42 @@ export const ProductFormSchema = z.object({
     z.number().int().positive("Brand is required.")
   ),
 
-  // Manejo de Imágenes
-  // 'newImages' guarda los archivos File[] subidos por el usuario (solo para CREACIÓN/EDICIÓN)
+  /**
+   * <summary>
+   * Array of new File objects uploaded by the user.
+   * </summary>
+   */
   newImages: z.array(z.instanceof(File)).optional().nullable(),
 
-  // 'existingImages' es solo para EDICIÓN, para mantener el rastro de imágenes existentes
+  /**
+   * <summary>
+   * Array of existing images retrieved from the backend.
+   * Includes a flag to mark images for deletion.
+   * </summary>
+   */
   existingImages: z
     .array(
       z.object({
         id: z.number().int(),
         url: z.string().url(),
-        // Usamos este campo para marcar si la imagen debe ser eliminada
         isDeleted: z.boolean().optional().default(false),
       })
     )
     .optional()
     .default([]),
 
-  // 'mainImageId' indica qué imagen existente o nueva debe ser la principal.
-  // Usamos string para el input radio, luego transformamos a number o a string temporal.
+  /**
+   * <summary>
+   * Identifier for the main image (can be an existing ID or a temporary key for new files).
+   * </summary>
+   */
   mainImageKey: z.string().min(1, "A main image must be selected."),
 });
 
 /**
- * Tipo derivado de Zod para el formato del formulario (usado en RHF).
+ * <summary>
+ * Type definition inferred from the Zod schema.
+ * Represents the shape of the form values.
+ * </summary>
  */
 export type ProductFormValues = z.infer<typeof ProductFormSchema>;

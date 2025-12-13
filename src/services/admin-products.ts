@@ -144,12 +144,9 @@ export interface ProductDetailForAdminDTO {
   updatedAt: string;
   /** <summary>URL of the main product image.</summary> */
   mainImageURL?: string;
-
 }
 
-
 const ADMIN_PRODUCTS_QUERY_KEY = "adminProductsList";
-
 
 /**
  * <summary>

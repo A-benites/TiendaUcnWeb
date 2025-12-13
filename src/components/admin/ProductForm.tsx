@@ -8,18 +8,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FaImage, FaTrash, FaCheckCircle, FaSpinner } from "react-icons/fa";
 import toast from "react-hot-toast";
 
-// Importaciones de validación y servicios
 import { ProductFormSchema, ProductFormValues } from "@/lib/validation/productSchema";
 import { ProductDetailForAdminDTO, ProductImageDTO } from "@/services/admin-products";
 import { useBrandsQuery, useCategoriesQuery } from "@/services/admin-form-data";
 
 import ImageUploadPreview from "@/components/ui/ImageUploadPreview";
 
-// Interfaz local para manejar el estado visual (isDeleted)
+/**
+ * <summary>
+ * Extended interface for Product Images in the UI, adding state for deletion.
+ * </summary>
+ */
 interface ProductImageUI extends ProductImageDTO {
   isDeleted: boolean;
 }
 
+/**
+ * <summary>
+ * Props definition for the ProductForm component.
+ * </summary>
+ */
 interface ProductFormProps {
   initialData?: ProductDetailForAdminDTO;
   isEdit: boolean;
@@ -32,10 +40,18 @@ const MAX_IMAGES = 5;
 const MAX_FILE_SIZE_MB = 2;
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
+/**
+ * <summary>
+ * A reusable form component for creating and updating products.
+ * </summary>
+ * <remarks>
+ * Handles React Hook Form integration, Zod validation, file uploads,
+ * image previews, and conversion to FormData.
+ * </remarks>
+ */
 export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: ProductFormProps) => {
   const [fileList, setFileList] = useState<File[]>([]);
 
-  // Inicialización segura del estado de imágenes
   const [existingImagesState, setExistingImagesState] = useState<ProductImageUI[]>(() => {
     if (initialData?.images) {
       return initialData.images.map((img) => ({
@@ -46,7 +62,6 @@ export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: Pr
     return [];
   });
 
-  // Fetch de datos auxiliares
   const { data: categories } = useCategoriesQuery();
   const { data: brands } = useBrandsQuery();
 
@@ -57,7 +72,6 @@ export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: Pr
     setValue,
     getValues,
   } = useForm<ProductFormValues>({
-    // Corrección de tipos estricta para Zod
     resolver: zodResolver(ProductFormSchema) as any,
     defaultValues: {
       title: initialData?.title || "",
@@ -206,7 +220,6 @@ export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: Pr
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Title */}
         <div className="md:col-span-2">
           <label className="block text-sm font-semibold text-gray-700 mb-1">Product Title</label>
           <input
@@ -217,7 +230,6 @@ export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: Pr
           {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
         </div>
 
-        {/* Price */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Price ($)</label>
           <input
@@ -229,7 +241,6 @@ export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: Pr
           {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>}
         </div>
 
-        {/* Stock */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Stock Quantity</label>
           <input
@@ -240,7 +251,6 @@ export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: Pr
           {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock.message}</p>}
         </div>
 
-        {/* ⚠️ CORRECCIÓN APLICADA AQUÍ: CATEGORY SELECT */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
           <select
@@ -248,7 +258,6 @@ export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: Pr
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white"
           >
             <option value="0">Select a Category</option>
-            {/* Verificamos que sea un array antes de hacer map */}
             {Array.isArray(categories) &&
               categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -261,7 +270,6 @@ export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: Pr
           )}
         </div>
 
-        {/* ⚠️ CORRECCIÓN APLICADA AQUÍ: BRAND SELECT */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Brand</label>
           <select
@@ -269,7 +277,6 @@ export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: Pr
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white"
           >
             <option value="0">Select a Brand</option>
-            {/* Verificamos que sea un array antes de hacer map */}
             {Array.isArray(brands) &&
               brands.map((brand) => (
                 <option key={brand.id} value={brand.id}>
@@ -280,7 +287,6 @@ export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: Pr
           {errors.brandId && <p className="text-red-500 text-sm mt-1">{errors.brandId.message}</p>}
         </div>
 
-        {/* Discount */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">Discount (%)</label>
           <input
@@ -294,7 +300,6 @@ export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: Pr
         </div>
       </div>
 
-      {/* Description */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
         <textarea
@@ -308,7 +313,6 @@ export const ProductForm = ({ initialData, isEdit, onSubmitForm, isLoading }: Pr
         )}
       </div>
 
-      {/* Image Management Section */}
       <div className="border-2 border-dashed border-gray-200 p-6 rounded-xl bg-gray-50">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-bold text-gray-800">

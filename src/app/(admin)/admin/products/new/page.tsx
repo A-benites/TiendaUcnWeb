@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
@@ -9,22 +7,26 @@ import { api } from "@/lib/axios";
 import toast from "react-hot-toast";
 
 /**
- * Función de mutación para crear un producto.
- * @param formData El objeto FormData que contiene los campos del producto y los archivos de imagen.
+ * <summary>
+ * Async function to handle product creation via API.
+ * </summary>
+ * <param name="formData">The FormData object containing fields and files.</param>
+ * <returns>A Promise resolving to the ID of the created product.</returns>
  */
 async function createProduct(formData: FormData): Promise<number> {
   const response = await api.post("/admin/products", formData, {
     headers: {
-      // El Content-Type debe ser 'multipart/form-data' para FormData
       "Content-Type": "multipart/form-data",
     },
   });
-  // Asume que el backend devuelve el ID del producto creado en response.data.data
   return response.data.data as number;
 }
 
 /**
- * Página para crear un nuevo producto.
+ * <summary>
+ * Page component for creating a new product.
+ * </summary>
+ * <returns>Renders the ProductForm in creation mode.</returns>
  */
 export default function AdminNewProductPage() {
   const router = useRouter();
@@ -33,7 +35,6 @@ export default function AdminNewProductPage() {
     mutationFn: createProduct,
     onSuccess: (newProductId) => {
       toast.success("Product created successfully!");
-      // Redirigir a la página de edición o al listado
       router.push(`/admin/products/edit/${newProductId}`);
     },
     onError: (error) => {
