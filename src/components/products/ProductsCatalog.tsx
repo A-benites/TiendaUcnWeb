@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useProducts } from "@/hooks/useProducts";
+import { useFiltersData } from "@/hooks/useFilters";
 import { ProductCard } from "@/components/common/ProductCard";
 import { Pagination } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,18 @@ export function ProductsCatalog() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const { data: filtersData } = useFiltersData();
+
+  // Helper to get name from ID
+  const getCategoryName = (id: string | undefined) => {
+    if (!id) return "";
+    return filtersData?.categories.find((c) => c.id.toString() === id)?.name || id;
+  };
+
+  const getBrandName = (id: string | undefined) => {
+    if (!id) return "";
+    return filtersData?.brands.find((b) => b.id.toString() === id)?.name || id;
+  };
 
   // Read initial values from URL
   const initialSearch = searchParams.get("search") ?? "";
@@ -279,13 +292,13 @@ export function ProductsCatalog() {
           <div className="flex flex-wrap items-center gap-2">
             {filters.category && (
               <FilterBadge
-                label={`Categoría: ${filters.category}`}
+                label={`Categoría: ${getCategoryName(filters.category)}`}
                 onRemove={() => handleFiltersChange({ ...filters, category: undefined })}
               />
             )}
             {filters.brand && (
               <FilterBadge
-                label={`Marca: ${filters.brand}`}
+                label={`Marca: ${getBrandName(filters.brand)}`}
                 onRemove={() => handleFiltersChange({ ...filters, brand: undefined })}
               />
             )}
