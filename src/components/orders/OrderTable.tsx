@@ -3,7 +3,6 @@ import Link from "next/link";
 import { formatCurrency, formatDate } from "@/utils/format";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 /**
  * <summary>
@@ -55,9 +54,9 @@ export const OrderTable = ({ orders }: OrderTableProps) => {
                 {order.createdAt ? formatDate(order.createdAt) : "N/A"}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                <Badge variant="secondary" className="font-normal">
+                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors border-transparent bg-gray-100 text-gray-900 hover:bg-gray-200/80">
                   {order.orderItems.reduce((acc, item) => acc + item.quantity, 0)} productos
-                </Badge>
+                </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-right">
                 {formatCurrency(order.total)}

@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2, ShieldCheck, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Helper para parsear precio (puede ser string "$1.500" o number)
 const parsePrice = (price: string | number): number => {
@@ -22,6 +23,7 @@ const parsePrice = (price: string | number): number => {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { items, getTotalPrice, clearCart } = useCartStore();
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -66,6 +68,10 @@ export default function CheckoutPage() {
 
       // 3. Clear client cart and redirect
       clearCart();
+
+      // 4. Invalidate product queries to update stock
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+
       toast.success("¡Pedido realizado con éxito!");
       router.push("/checkout/success");
     } catch (err) {

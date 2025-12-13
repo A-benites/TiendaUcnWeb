@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import { formatCurrency, formatDate } from "@/utils/format";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Loader2, Download, Package, Calendar, FileText } from "lucide-react";
 import Image from "next/image";
@@ -64,11 +63,11 @@ export default function OrderDetailPage() {
   const order = data;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto p-4 md:py-8">
       <Button
         onClick={() => router.back()}
         variant="ghost"
-        className="mb-6 -ml-2 hover:bg-transparent hover:text-primary"
+        className="mb-6 pl-0 hover:bg-transparent hover:text-primary"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
         Volver al historial
@@ -84,12 +83,9 @@ export default function OrderDetailPage() {
             </p>
           </div>
         </div>
-        <Badge
-          variant="outline"
-          className="text-sm py-1 px-3 border-primary/20 bg-primary/5 text-primary"
-        >
+        <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary/10 text-primary hover:bg-primary/20">
           Completado
-        </Badge>
+        </span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -132,12 +128,9 @@ export default function OrderDetailPage() {
                   </div>
                   <div className="flex items-end justify-between">
                     {item.discountAtMoment > 0 ? (
-                      <Badge
-                        variant="secondary"
-                        className="text-xs font-normal text-destructive bg-destructive/10"
-                      >
+                      <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-red-100 text-red-900 hover:bg-red-200">
                         -{item.discountAtMoment}% Descuento
-                      </Badge>
+                      </span>
                     ) : (
                       <span></span>
                     )}
