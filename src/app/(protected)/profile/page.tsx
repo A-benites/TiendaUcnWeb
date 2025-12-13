@@ -10,7 +10,6 @@ import {
   useChangePassword,
   useVerifyEmailChange,
 } from "@/hooks/useProfile";
-import { useAuthStore } from "@/stores/auth.store";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -216,7 +215,6 @@ export default function ProfilePage() {
   const updateProfileMutation = useUpdateProfile();
   const changePasswordMutation = useChangePassword();
   const verifyEmailChangeMutation = useVerifyEmailChange();
-  const user = useAuthStore((state) => state.user);
 
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -260,24 +258,23 @@ export default function ProfilePage() {
 
   // Populate form with profile data
   useEffect(() => {
-    const profileData = profile || user;
-    if (profileData) {
+    if (profile) {
       profileForm.reset({
-        firstName: profileData.firstName || "",
-        lastName: profileData.lastName || "",
-        gender: profileData.gender,
-        birthDate: profileData.birthDate || "",
-        phoneNumber: profileData.phoneNumber || "",
-        email: profileData.email || "",
-        rut: profileData.rut || "",
+        firstName: profile.firstName || "",
+        lastName: profile.lastName || "",
+        gender: profile.gender,
+        birthDate: profile.birthDate || "",
+        phoneNumber: profile.phoneNumber || "",
+        email: profile.email || "",
+        rut: profile.rut || "",
       });
     }
-  }, [profile, user, profileForm]);
+  }, [profile, profileForm]);
 
   // Handle profile update
   const onProfileSubmit = (values: ProfileFormValues) => {
-    const currentEmail = profile?.email || user?.email;
-    const currentRut = profile?.rut || user?.rut;
+    const currentEmail = profile?.email;
+    const currentRut = profile?.rut;
 
     // Check if email is being changed (only if different from current)
     const isEmailChanging =
@@ -286,19 +283,19 @@ export default function ProfilePage() {
     // Build update data - only include changed fields
     const updateData: Record<string, string | undefined> = {};
 
-    if (values.firstName !== (profile?.firstName || user?.firstName)) {
+    if (values.firstName !== profile?.firstName) {
       updateData.firstName = values.firstName;
     }
-    if (values.lastName !== (profile?.lastName || user?.lastName)) {
+    if (values.lastName !== profile?.lastName) {
       updateData.lastName = values.lastName;
     }
-    if (values.gender !== (profile?.gender || user?.gender)) {
+    if (values.gender !== profile?.gender) {
       updateData.gender = values.gender;
     }
-    if (values.birthDate !== (profile?.birthDate || user?.birthDate)) {
+    if (values.birthDate !== profile?.birthDate) {
       updateData.birthDate = values.birthDate;
     }
-    if (values.phoneNumber !== (profile?.phoneNumber || user?.phoneNumber || "")) {
+    if (values.phoneNumber !== (profile?.phoneNumber || "")) {
       updateData.phoneNumber = values.phoneNumber || undefined;
     }
     if (values.rut && values.rut !== currentRut) {
