@@ -73,10 +73,7 @@ export const userService = {
    * Change the user's password
    */
   async changePassword(passwordData: ChangePasswordData): Promise<ChangePasswordResponse> {
-    const { data } = await api.patch<ChangePasswordResponse>(
-      "/user/change-password",
-      passwordData
-    );
+    const { data } = await api.patch<ChangePasswordResponse>("/user/change-password", passwordData);
     return data;
   },
 };

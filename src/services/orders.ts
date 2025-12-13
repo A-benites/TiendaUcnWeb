@@ -1,6 +1,6 @@
-import { api } from '@/lib/axios'; 
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
+import { api } from "@/lib/axios";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 /**
  * <summary>
@@ -8,20 +8,20 @@ import { AxiosError } from 'axios';
  * </summary>
  */
 export interface OrderItemDTO {
-    /** <summary>Unique identifier for the order item.</summary> */
-    id: number;
-    /** <summary>Quantity of the product purchased.</summary> */
-    quantity: number;
-    /** <summary>Price of the product at the moment the order was placed.</summary> */
-    priceAtMoment: number;
-    /** <summary>Title of the product at the moment of purchase.</summary> */
-    titleAtMoment: string;
-    /** <summary>Description of the product at the moment of purchase.</summary> */
-    descriptionAtMoment: string;
-    /** <summary>Image URL of the product at the moment of purchase.</summary> */
-    imageAtMoment: string;
-    /** <summary>Discount percentage applied to the product at the moment of purchase.</summary> */
-    discountAtMoment: number;
+  /** <summary>Unique identifier for the order item.</summary> */
+  id: number;
+  /** <summary>Quantity of the product purchased.</summary> */
+  quantity: number;
+  /** <summary>Price of the product at the moment the order was placed.</summary> */
+  priceAtMoment: number;
+  /** <summary>Title of the product at the moment of purchase.</summary> */
+  titleAtMoment: string;
+  /** <summary>Description of the product at the moment of purchase.</summary> */
+  descriptionAtMoment: string;
+  /** <summary>Image URL of the product at the moment of purchase.</summary> */
+  imageAtMoment: string;
+  /** <summary>Discount percentage applied to the product at the moment of purchase.</summary> */
+  discountAtMoment: number;
 }
 
 /**
@@ -30,18 +30,18 @@ export interface OrderItemDTO {
  * </summary>
  */
 export interface OrderDTO {
-    /** <summary>Unique identifier for the order.</summary> */
-    id: number;
-    /** <summary>The unique code identifying the order.</summary> */
-    code: string;
-    /** <summary>The final total amount of the order (after discounts).</summary> */
-    total: number;
-    /** <summary>The subtotal amount of the order (before discounts).</summary> */
-    subTotal: number;
-    /** <summary>The date and time when the order was created.</summary> */
-    createdAt: string | null;
-    /** <summary>List of items included in the order.</summary> */
-    orderItems: OrderItemDTO[];
+  /** <summary>Unique identifier for the order.</summary> */
+  id: number;
+  /** <summary>The unique code identifying the order.</summary> */
+  code: string;
+  /** <summary>The final total amount of the order (after discounts).</summary> */
+  total: number;
+  /** <summary>The subtotal amount of the order (before discounts).</summary> */
+  subTotal: number;
+  /** <summary>The date and time when the order was created.</summary> */
+  createdAt: string | null;
+  /** <summary>List of items included in the order.</summary> */
+  orderItems: OrderItemDTO[];
 }
 
 /**
@@ -50,16 +50,16 @@ export interface OrderDTO {
  * </summary>
  */
 export interface OrderListDTO {
-    /** <summary>List of orders in the current page.</summary> */
-    orders: OrderDTO[];
-    /** <summary>Total count of orders matching the filter criteria.</summary> */
-    totalCount: number;
-    /** <summary>Current page number.</summary> */
-    currentPage: number;
-    /** <summary>Number of items per page.</summary> */
-    pageSize: number;
-    /** <summary>Total number of pages available.</summary> */
-    totalPages: number;
+  /** <summary>List of orders in the current page.</summary> */
+  orders: OrderDTO[];
+  /** <summary>Total count of orders matching the filter criteria.</summary> */
+  totalCount: number;
+  /** <summary>Current page number.</summary> */
+  currentPage: number;
+  /** <summary>Number of items per page.</summary> */
+  pageSize: number;
+  /** <summary>Total number of pages available.</summary> */
+  totalPages: number;
 }
 
 /**
@@ -69,14 +69,13 @@ export interface OrderListDTO {
  * </summary>
  */
 export interface UserOrderFilterDTO {
-    /** <summary>The page number to retrieve (starts at 1).</summary> */
-    page: number;
-    /** <summary>The number of orders per page.</summary> */
-    pageSize: number;
-    /** <summary>Optional filter to search by order code.</summary> */
-    code?: string;
+  /** <summary>The page number to retrieve (starts at 1).</summary> */
+  page: number;
+  /** <summary>The number of orders per page.</summary> */
+  pageSize: number;
+  /** <summary>Optional filter to search by order code.</summary> */
+  code?: string;
 }
-
 
 /**
  * <summary>
@@ -90,35 +89,34 @@ export interface UserOrderFilterDTO {
  * </remarks>
  */
 export async function getOrders(filter: UserOrderFilterDTO): Promise<OrderListDTO> {
-    const params = {
-        page: filter.page,
+  const params = {
+    page: filter.page,
+    pageSize: filter.pageSize,
+    ...(filter.code && { code: filter.code }),
+  };
+
+  try {
+    const response = await api.get("/orders", { params });
+    return response.data.data;
+  } catch (err) {
+    // Log the error for debugging backend issues
+    console.error("Error fetching orders. Check API connectivity or token validity:", err);
+
+    const error = err as AxiosError; // Type casting for Axios properties
+
+    // Contingency: If the error is a client error (4xx like 401/403/404), return empty data
+    if (error.response && error.response.status >= 400 && error.response.status < 500) {
+      return {
+        orders: [],
+        totalCount: 0,
+        currentPage: filter.page,
         pageSize: filter.pageSize,
-        ...(filter.code && { code: filter.code }), 
-    };
-    
-    try {
-        const response = await api.get('/orders', { params });
-        return response.data.data;
-    } catch (err) {
-        // Log the error for debugging backend issues
-        console.error("Error fetching orders. Check API connectivity or token validity:", err);
-        
-        const error = err as AxiosError; // Type casting for Axios properties
-        
-        // Contingency: If the error is a client error (4xx like 401/403/404), return empty data
-        if (error.response && error.response.status >= 400 && error.response.status < 500) {
-            
-            return {
-                orders: [],
-                totalCount: 0,
-                currentPage: filter.page,
-                pageSize: filter.pageSize,
-                totalPages: 0,
-            };
-        }
-        // For server errors (5xx) or network errors, re-throw the error
-        throw error;
+        totalPages: 0,
+      };
     }
+    // For server errors (5xx) or network errors, re-throw the error
+    throw error;
+  }
 }
 
 /**
@@ -129,8 +127,8 @@ export async function getOrders(filter: UserOrderFilterDTO): Promise<OrderListDT
  * <returns>A Promise resolving to an OrderDTO object (the order detail).</returns>
  */
 export async function getOrderDetail(id: number): Promise<OrderDTO> {
-    const response = await api.get(`/orders/${id}`);
-    return response.data.data;
+  const response = await api.get(`/orders/${id}`);
+  return response.data.data;
 }
 
 /**
@@ -140,12 +138,11 @@ export async function getOrderDetail(id: number): Promise<OrderDTO> {
  * <returns>A Promise resolving to the created OrderDTO.</returns>
  */
 export async function createOrder(): Promise<OrderDTO> {
-    const response = await api.post('/orders');
-    return response.data;
+  const response = await api.post("/orders");
+  return response.data;
 }
 
-
-const ORDERS_QUERY_KEY = 'userOrders';
+const ORDERS_QUERY_KEY = "userOrders";
 
 /**
  * <summary>
@@ -154,15 +151,13 @@ const ORDERS_QUERY_KEY = 'userOrders';
  * <param name="filter">The filter and pagination parameters.</param>
  * <returns>The result object from the useQuery hook.</returns>
  */
-export const useOrdersQuery = (
-    filter: UserOrderFilterDTO
-): UseQueryResult<OrderListDTO, Error> => {
-    return useQuery<OrderListDTO, Error>({
-        queryKey: [ORDERS_QUERY_KEY, filter],
-        queryFn: () => getOrders(filter),
-        staleTime: 1000 * 60 * 5,
-        placeholderData: (previousData) => previousData,
-    });
+export const useOrdersQuery = (filter: UserOrderFilterDTO): UseQueryResult<OrderListDTO, Error> => {
+  return useQuery<OrderListDTO, Error>({
+    queryKey: [ORDERS_QUERY_KEY, filter],
+    queryFn: () => getOrders(filter),
+    staleTime: 1000 * 60 * 5,
+    placeholderData: (previousData) => previousData,
+  });
 };
 
 /**
@@ -173,9 +168,9 @@ export const useOrdersQuery = (
  * <returns>The result object from the useQuery hook.</returns>
  */
 export const useOrderDetailQuery = (id: number): UseQueryResult<OrderDTO, Error> => {
-    return useQuery<OrderDTO, Error>({
-        queryKey: ['orderDetail', id],
-        queryFn: () => getOrderDetail(id),
-        enabled: id > 0,
-    });
+  return useQuery<OrderDTO, Error>({
+    queryKey: ["orderDetail", id],
+    queryFn: () => getOrderDetail(id),
+    enabled: id > 0,
+  });
 };

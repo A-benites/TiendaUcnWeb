@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-
-import { api } from '@/lib/axios'; // Asume tu cliente Axios configurado
-import { 
-    useQuery, 
-    useMutation, 
-    useQueryClient, 
-    UseQueryResult,
-    UseMutationResult
-} from '@tanstack/react-query';
-import { AxiosError } from 'axios';
+import { api } from "@/lib/axios"; // Asume tu cliente Axios configurado
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  UseQueryResult,
+  UseMutationResult,
+} from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 // --- Interfaces de Datos (Basadas en tus DTOs de C#) ---
 
@@ -23,13 +22,13 @@ import { AxiosError } from 'axios';
  * </remarks>
  */
 export interface AdminProductSearchParams {
-    /** <summary>The page number to retrieve (must be >= 1).</summary> */
-    page: number;
-    /** <summary>The number of products per page.</summary> */
-    pageSize: number;
-    /** <summary>Optional search term to filter by product title or description.</summary> */
-    search?: string;
-    // ... other filters (CategoryId, BrandId, etc.) could be added here
+  /** <summary>The page number to retrieve (must be >= 1).</summary> */
+  page: number;
+  /** <summary>The number of products per page.</summary> */
+  pageSize: number;
+  /** <summary>Optional search term to filter by product title or description.</summary> */
+  search?: string;
+  // ... other filters (CategoryId, BrandId, etc.) could be added here
 }
 
 /**
@@ -41,28 +40,28 @@ export interface AdminProductSearchParams {
  * </remarks>
  */
 export interface ProductForAdminDTO {
-    /** <summary>Unique product identifier.</summary> */
-    id: number;
-    /** <summary>Product title.</summary> */
-    title: string;
-    /** <summary>URL of the product's main image.</summary> */
-    mainImageURL?: string;
-    /** <summary>Product price (formatted string).</summary> */
-    price: string;
-    /** <summary>Available stock quantity.</summary> */
-    stock: number;
-    /** <summary>Stock indicator (e.g., "Low", "High").</summary> */
-    stockIndicator: string;
-    /** <summary>Product category name.</summary> */
-    categoryName: string;
-    /** <summary>Product brand name.</summary> */
-    brandName: string;
-    /** <summary>Product status text (e.g., "New", "Used").</summary> */
-    statusName: string;
-    /** <summary>Indicates whether the product is currently available for sale.</summary> */
-    isAvailable: boolean;
-    /** <summary>Product last update date (ISO string).</summary> */
-    updatedAt: string;
+  /** <summary>Unique product identifier.</summary> */
+  id: number;
+  /** <summary>Product title.</summary> */
+  title: string;
+  /** <summary>URL of the product's main image.</summary> */
+  mainImageURL?: string;
+  /** <summary>Product price (formatted string).</summary> */
+  price: string;
+  /** <summary>Available stock quantity.</summary> */
+  stock: number;
+  /** <summary>Stock indicator (e.g., "Low", "High").</summary> */
+  stockIndicator: string;
+  /** <summary>Product category name.</summary> */
+  categoryName: string;
+  /** <summary>Product brand name.</summary> */
+  brandName: string;
+  /** <summary>Product status text (e.g., "New", "Used").</summary> */
+  statusName: string;
+  /** <summary>Indicates whether the product is currently available for sale.</summary> */
+  isAvailable: boolean;
+  /** <summary>Product last update date (ISO string).</summary> */
+  updatedAt: string;
 }
 
 /**
@@ -74,20 +73,20 @@ export interface ProductForAdminDTO {
  * </remarks>
  */
 export interface ListedProductsForAdminDTO {
-    /** <summary>List of products in the current page.</summary> */
-    products: ProductForAdminDTO[];
-    /** <summary>Total count of products found.</summary> */
-    totalCount: number;
-    /** <summary>Total number of pages available.</summary> */
-    totalPages: number;
-    /** <summary>Current query page.</summary> */
-    currentPage: number;
-    /** <summary>Number of products per page.</summary> */
-    pageSize: number;
+  /** <summary>List of products in the current page.</summary> */
+  products: ProductForAdminDTO[];
+  /** <summary>Total count of products found.</summary> */
+  totalCount: number;
+  /** <summary>Total number of pages available.</summary> */
+  totalPages: number;
+  /** <summary>Current query page.</summary> */
+  currentPage: number;
+  /** <summary>Number of products per page.</summary> */
+  pageSize: number;
 }
 
 // --- Clave de Consulta ---
-const ADMIN_PRODUCTS_QUERY_KEY = 'adminProductsList';
+const ADMIN_PRODUCTS_QUERY_KEY = "adminProductsList";
 
 // --- Funciones de Fetching y Mutación ---
 
@@ -103,42 +102,34 @@ const ADMIN_PRODUCTS_QUERY_KEY = 'adminProductsList';
  * for 4xx errors (e.g., 400, 401, 403).
  * </remarks>
  */
-export async function getAdminProducts(params: AdminProductSearchParams): Promise<ListedProductsForAdminDTO> {
-    
-    // Map frontend names to backend required names (e.g., Page -> PageNumber)
-    const queryParams: Record<string, any> = {
-        PageNumber: Number(params.page),
-        PageSize: Number(params.pageSize),
-    };
-    
-    // Only include search term if it has a value
-    if (params.search && params.search.trim() !== '') {
-        queryParams.SearchTerm = params.search.trim();
-    }
-    
-    try {
-        const response = await api.get('/admin/products', { params: queryParams });
-        return response.data.data;
-        
-    } catch (err) {
-        console.error("Error fetching admin products. Check parameters or auth:", err);
-        
-        const error = err as AxiosError;
-        
-        // Contingency for 4xx client errors (400, 401, 403)
-        if (error.response && error.response.status >= 400 && error.response.status < 500) {
-            
-            return {
-                products: [],
-                totalCount: 0,
-                currentPage: params.page,
-                pageSize: params.pageSize,
-                totalPages: 0,
-            };
-        }
-        // Re-throw other errors (5xx, network failures)
-        throw error; 
-    }
+export async function getAdminProducts(
+  params: AdminProductSearchParams
+): Promise<ListedProductsForAdminDTO> {
+  // Map frontend names to backend required names (e.g., Page -> PageNumber)
+  const queryParams: Record<string, any> = {
+    PageNumber: Number(params.page),
+    PageSize: Number(params.pageSize),
+  }; // Only include search term if it has a value
+  if (params.search && params.search.trim() !== "") {
+    queryParams.SearchTerm = params.search.trim();
+  }
+  try {
+    const response = await api.get("/admin/products", { params: queryParams });
+    return response.data.data;
+  } catch (err) {
+    console.error("Error fetching admin products. Check parameters or auth:", err);
+    const error = err as AxiosError; // Contingency for 4xx client errors (400, 401, 403)
+    if (error.response && error.response.status >= 400 && error.response.status < 500) {
+      return {
+        products: [],
+        totalCount: 0,
+        currentPage: params.page,
+        pageSize: params.pageSize,
+        totalPages: 0,
+      };
+    } // Re-throw other errors (5xx, network failures)
+    throw error;
+  }
 }
 
 /**
@@ -152,7 +143,7 @@ export async function getAdminProducts(params: AdminProductSearchParams): Promis
  * </remarks>
  */
 export async function toggleProductStatus(id: number): Promise<void> {
-    await api.patch(`/admin/products/${id}/status`);
+  await api.patch(`/admin/products/${id}/status`);
 }
 
 // --- Hooks de React Query ---
@@ -165,14 +156,14 @@ export async function toggleProductStatus(id: number): Promise<void> {
  * <returns>The result object from the useQuery hook (with error type set to Error).</returns>
  */
 export const useAdminProductsQuery = (
-    params: AdminProductSearchParams
+  params: AdminProductSearchParams
 ): UseQueryResult<ListedProductsForAdminDTO, Error> => {
-    return useQuery<ListedProductsForAdminDTO, Error>({
-        queryKey: [ADMIN_PRODUCTS_QUERY_KEY, params],
-        queryFn: () => getAdminProducts(params),
-        placeholderData: (previousData) => previousData,
-        staleTime: 1000 * 60, // 1 minute
-    });
+  return useQuery<ListedProductsForAdminDTO, Error>({
+    queryKey: [ADMIN_PRODUCTS_QUERY_KEY, params],
+    queryFn: () => getAdminProducts(params),
+    placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60, // 1 minute
+  });
 };
 
 /**
@@ -186,14 +177,13 @@ export const useAdminProductsQuery = (
  * </remarks>
  */
 export const useToggleProductStatusMutation = (): UseMutationResult<void, Error, number> => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-    return useMutation<void, Error, number>({
-        mutationFn: toggleProductStatus,
-        
-        onSuccess: () => {
-            // Invalidate the product list query to show the updated status immediately
-            queryClient.invalidateQueries({ queryKey: [ADMIN_PRODUCTS_QUERY_KEY] });
-        },
-    });
+  return useMutation<void, Error, number>({
+    mutationFn: toggleProductStatus,
+    onSuccess: () => {
+      // Invalidate the product list query to show the updated status immediately
+      queryClient.invalidateQueries({ queryKey: [ADMIN_PRODUCTS_QUERY_KEY] });
+    },
+  });
 };

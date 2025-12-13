@@ -1,4 +1,3 @@
-
 export interface ProductForAdmin {
   id: number;
   title: string;
@@ -25,5 +24,5 @@ export interface AdminProductSearchParams {
   page: number;
   pageSize: number;
   search?: string;
-  status?: 'available' | 'unavailable' | 'all';
+  status?: "available" | "unavailable" | "all";
 }

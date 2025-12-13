@@ -7,13 +7,7 @@ import { authService } from "@/services/auth.service";
 import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Mail, RefreshCw, Shield, ArrowRight, CheckCircle2 } from "lucide-react";
 
 function VerifyEmailContent() {
@@ -113,28 +107,29 @@ function VerifyEmailContent() {
         </div>
         <CardTitle className="text-center text-2xl">Verifica tu correo</CardTitle>
         <CardDescription className="text-center">
-          Ingresa el código de 6 dígitos enviado a <span className="font-medium text-foreground">{email}</span>
+          Ingresa el código de 6 dígitos enviado a{" "}
+          <span className="font-medium text-foreground">{email}</span>
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex justify-center">
-            <InputOTP
-              maxLength={6}
-              value={verificationCode}
-              onChange={setVerificationCode}
-              disabled={isLoading}
-            >
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-              </InputOTPGroup>
-              <InputOTPGroup>
-                <InputOTPSlot index={3} />
-                <InputOTPSlot index={4} />
-                <InputOTPSlot index={5} />
-              </InputOTPGroup>
-            </InputOTP>
+          <InputOTP
+            maxLength={6}
+            value={verificationCode}
+            onChange={setVerificationCode}
+            disabled={isLoading}
+          >
+            <InputOTPGroup>
+              <InputOTPSlot index={0} />
+              <InputOTPSlot index={1} />
+              <InputOTPSlot index={2} />
+            </InputOTPGroup>
+            <InputOTPGroup>
+              <InputOTPSlot index={3} />
+              <InputOTPSlot index={4} />
+              <InputOTPSlot index={5} />
+            </InputOTPGroup>
+          </InputOTP>
         </div>
 
         <Button

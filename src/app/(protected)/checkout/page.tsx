@@ -38,7 +38,7 @@ export default function CheckoutPage() {
   const handleCheckout = async () => {
     // Basic Admin check (if user object has role, otherwise relying on backend)
     // Assuming backend returns 403 if admin tries to buy
-    
+
     setIsLoading(true);
     setError(null);
 
@@ -68,11 +68,11 @@ export default function CheckoutPage() {
       clearCart();
       toast.success("¡Pedido realizado con éxito!");
       router.push("/checkout/success");
-      
     } catch (err) {
       console.error("Checkout error:", err);
       const axiosError = err as AxiosError<{ message: string }>;
-      const message = axiosError.response?.data?.message || "Ocurrió un error al procesar el pedido.";
+      const message =
+        axiosError.response?.data?.message || "Ocurrió un error al procesar el pedido.";
       setError(message);
       toast.error(message);
     } finally {
@@ -126,24 +126,26 @@ export default function CheckoutPage() {
 
           {/* User Info Confirmation */}
           <Card>
-             <CardHeader>
+            <CardHeader>
               <CardTitle>Datos del Cliente</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <p className="font-semibold">Nombre:</p>
-                        <p>{user?.firstName} {user?.lastName}</p>
-                    </div>
-                    <div>
-                        <p className="font-semibold">Email:</p>
-                        <p>{user?.email}</p>
-                    </div>
-                    <div>
-                        <p className="font-semibold">RUT:</p>
-                        <p>{user?.rut}</p>
-                    </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="font-semibold">Nombre:</p>
+                  <p>
+                    {user?.firstName} {user?.lastName}
+                  </p>
                 </div>
+                <div>
+                  <p className="font-semibold">Email:</p>
+                  <p>{user?.email}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">RUT:</p>
+                  <p>{user?.rut}</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -164,21 +166,16 @@ export default function CheckoutPage() {
                 <span>Total</span>
                 <span>${totalPrice.toLocaleString("es-CL")}</span>
               </div>
-              
+
               {error && (
                 <div className="p-3 bg-red-50 text-red-600 rounded-md flex items-start gap-2 text-sm">
-                    <AlertCircle className="h-4 w-4 mt-0.5" />
-                    <span>{error}</span>
+                  <AlertCircle className="h-4 w-4 mt-0.5" />
+                  <span>{error}</span>
                 </div>
               )}
             </CardContent>
             <CardFooter>
-              <Button 
-                className="w-full" 
-                size="lg" 
-                onClick={handleCheckout}
-                disabled={isLoading}
-              >
+              <Button className="w-full" size="lg" onClick={handleCheckout} disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

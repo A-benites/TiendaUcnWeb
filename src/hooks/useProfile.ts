@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userService } from "@/services/user.service";
-import { UpdateProfileData, ChangePasswordData, UserProfile, VerifyEmailChangeData } from "@/models/user.types";
+import { UpdateProfileData, ChangePasswordData, VerifyEmailChangeData } from "@/models/user.types";
 import { useAuthStore } from "@/stores/auth.store";
 import { toast } from "sonner";
 import { AxiosError } from "axios";

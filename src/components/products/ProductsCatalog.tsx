@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useProducts } from "@/hooks/useProducts";
 import { ProductCard } from "@/components/common/ProductCard";
@@ -92,8 +92,20 @@ export function ProductsCatalog() {
         return () => clearTimeout(handler);
     }, [search, debouncedSearch, sortBy, filters, updateURL]);
 
+    // Track previous searchParams to detect URL changes (browser back/forward)
+    const prevSearchParamsRef = useRef(searchParams.toString());
+
     // Sync URL changes to state (for browser back/forward)
     useEffect(() => {
+        const currentParamsString = searchParams.toString();
+
+        // Only update state if URL actually changed (not from our own updates)
+        if (prevSearchParamsRef.current === currentParamsString) {
+            return;
+        }
+
+        prevSearchParamsRef.current = currentParamsString;
+
         const urlSearch = searchParams.get("search") ?? "";
         const urlPage = parseInt(searchParams.get("page") ?? "1", 10);
         const urlSortBy = (searchParams.get("sortBy") as SortOption) ?? undefined;
@@ -106,15 +118,18 @@ export function ProductsCatalog() {
             ? parseInt(searchParams.get("maxPrice")!, 10)
             : undefined;
 
-        setSearch(urlSearch);
-        setDebouncedSearch(urlSearch);
-        setCurrentPage(urlPage);
-        setSortBy(urlSortBy);
-        setFilters({
-            category: urlCategory,
-            brand: urlBrand,
-            minPrice: urlMinPrice,
-            maxPrice: urlMaxPrice,
+        // Use requestAnimationFrame to schedule state updates outside of the effect
+        requestAnimationFrame(() => {
+            setSearch(urlSearch);
+            setDebouncedSearch(urlSearch);
+            setCurrentPage(urlPage);
+            setSortBy(urlSortBy);
+            setFilters({
+                category: urlCategory,
+                brand: urlBrand,
+                minPrice: urlMinPrice,
+                maxPrice: urlMaxPrice,
+            });
         });
     }, [searchParams]);
 

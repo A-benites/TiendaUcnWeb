@@ -143,11 +143,7 @@ export default function CartPage() {
             </Card>
           ))}
 
-          <Button 
-            variant="outline" 
-            onClick={() => setIsClearModalOpen(true)} 
-            className="w-full"
-          >
+          <Button variant="outline" onClick={() => setIsClearModalOpen(true)} className="w-full">
             <Trash2 className="mr-2 h-4 w-4" />
             Vaciar Carrito
           </Button>
@@ -179,7 +175,7 @@ export default function CartPage() {
             <CardFooter className="flex flex-col gap-2">
               <Link href="/checkout" className="w-full">
                 <Button className="w-full" size="lg">
-                    Proceder al Pago
+                  Proceder al Pago
                 </Button>
               </Link>
               <Link href="/products" className="w-full">
@@ -197,8 +193,8 @@ export default function CartPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-destructive" />
-                Eliminar Producto
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Eliminar Producto
             </DialogTitle>
             <DialogDescription>
               ¿Estás seguro de que deseas eliminar este producto del carrito?
@@ -220,8 +216,8 @@ export default function CartPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-destructive" />
-                Vaciar Carrito
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Vaciar Carrito
             </DialogTitle>
             <DialogDescription>
               ¿Estás seguro de que deseas vaciar todo el carrito? Esta acción no se puede deshacer.
@@ -240,4 +236,3 @@ export default function CartPage() {
     </div>
   );
 }
-

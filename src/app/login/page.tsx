@@ -4,11 +4,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { authService } from "@/services/auth.service";
-import { useAuthStore } from "@/stores/auth.store";
-import { AxiosError } from "axios";
+import { signIn } from "next-auth/react";
 
 // Componentes UI
 import { Button } from "@/components/ui/button";
@@ -42,9 +40,11 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/products";
+
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const setAuth = useAuthStore((state) => state.setAuth);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -57,24 +57,22 @@ export default function LoginPage() {
   const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
     try {
-      // 1. Obtener el token
-      const loginResponse = await authService.login(values.email, values.password);
-      const token = loginResponse.data;
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: values.email,
+        password: values.password,
+      });
 
-      // 2. Obtener el perfil del usuario
-      const profileResponse = await authService.getProfile(token);
-      const user = profileResponse.data;
-
-      // 3. Guardar en el store
-      setAuth(token, user);
-
-      toast.success(`¡Bienvenido, ${user.firstName}!`);
-      router.push("/products");
+      if (result?.error) {
+        toast.error("Credenciales inválidas. Por favor intenta nuevamente.");
+      } else {
+        toast.success("¡Bienvenido!");
+        router.push(callbackUrl);
+        router.refresh(); // Refresh to update server components/session
+      }
     } catch (error) {
-      const axiosError = error as AxiosError<{ message: string }>;
-      const message =
-        axiosError.response?.data?.message || "Credenciales inválidas o error en el servidor";
-      toast.error(message);
+      toast.error("Ocurrió un error inesperado.");
+      console.error(error);
     } finally {
       setIsLoading(false);
     }

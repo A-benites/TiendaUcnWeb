@@ -37,13 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Loader2,
-  User,
-  Eye,
-  EyeOff,
-} from "lucide-react";
+import { ArrowRight, Loader2, User, Eye, EyeOff } from "lucide-react";
 
 // ==================== VALIDACIÓN DE RUT ====================
 const validateRut = (rut: string): boolean => {
@@ -224,7 +218,6 @@ export default function RegisterPage() {
       toast.success("¡Cuenta creada! Verifica tu correo electrónico.");
       // Redirigir a la página de verificación
       router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
-      
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       const message =
@@ -487,4 +480,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-

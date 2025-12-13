@@ -44,6 +44,7 @@ Make sure you have installed on your system:
 ### 1. Clone both repositories
 
 **Backend (required first):**
+
 ```bash
 git clone https://github.com/A-benites/TiendaUcnApi.git
 cd TiendaUcnApi
@@ -51,6 +52,7 @@ cd TiendaUcnApi
 ```
 
 **Frontend:**
+
 ```bash
 git clone https://github.com/A-benites/TiendaUcnWeb.git
 cd TiendaUcnWeb

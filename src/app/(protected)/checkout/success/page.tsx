@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
 import { CheckCircle2, Package, ShoppingBag } from "lucide-react";
 
 export default function CheckoutSuccessPage() {
@@ -20,8 +27,8 @@ export default function CheckoutSuccessPage() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-6">
-            Hemos enviado un correo de confirmación con los detalles de tu pedido.
-            Puedes revisar el estado de tu compra en tu historial.
+            Hemos enviado un correo de confirmación con los detalles de tu pedido. Puedes revisar el
+            estado de tu compra en tu historial.
           </p>
         </CardContent>
         <CardFooter className="flex flex-col gap-3">
