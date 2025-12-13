@@ -13,7 +13,7 @@ export const AdminSidebar = () => {
       <div className="p-6 text-2xl font-bold border-b border-gray-800 flex items-center gap-2">
         <span className="text-blue-500">Admin</span>Panel
       </div>
-      
+
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         <Link
           href="/admin/dashboard"
@@ -22,11 +22,11 @@ export const AdminSidebar = () => {
           <LayoutDashboard className="mr-3 h-5 w-5" />
           Dashboard
         </Link>
-        
+
         <div className="pt-4 pb-2">
-            <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Catálogo
-            </p>
+          <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            Catálogo
+          </p>
         </div>
 
         <Link
@@ -54,9 +54,9 @@ export const AdminSidebar = () => {
         </Link>
 
         <div className="pt-4 pb-2">
-            <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Ventas
-            </p>
+          <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            Ventas
+          </p>
         </div>
 
         <Link
@@ -67,7 +67,7 @@ export const AdminSidebar = () => {
           Pedidos
         </Link>
       </nav>
-      
+
       <div className="p-4 border-t border-gray-800">
         <button className="flex items-center p-3 w-full rounded-lg hover:bg-red-900/50 text-red-400 hover:text-red-300 transition-colors">
           <LogOut className="mr-3 h-5 w-5" />

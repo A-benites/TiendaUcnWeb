@@ -48,9 +48,10 @@ export function Navbar() {
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";
   const user = session?.user;
-  
+
   // Check if role is Admin (case insensitive check is safer)
-  const isAdmin = user?.role?.toLowerCase() === "admin" || user?.role?.toLowerCase() === "administrador";
+  const isAdmin =
+    user?.role?.toLowerCase() === "admin" || user?.role?.toLowerCase() === "administrador";
 
   const totalItems = useCartStore((state) => state.getTotalItems());
 
@@ -78,7 +79,7 @@ export function Navbar() {
     // Si el nombre viene completo "Juan Perez"
     const parts = user.name.split(" ");
     if (parts.length >= 2) {
-        return `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase();
+      return `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase();
     }
     return user.name.charAt(0).toUpperCase();
   };
@@ -116,13 +117,13 @@ export function Navbar() {
             ))}
             {/* Admin Link Desktop */}
             {isAuthenticated && isAdmin && (
-                <Link
-                    href="/admin/products"
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                >
-                    <LayoutDashboard className="h-4 w-4" />
-                    Panel Admin
-                </Link>
+              <Link
+                href="/admin/products"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Panel Admin
+              </Link>
             )}
           </nav>
 
@@ -149,7 +150,9 @@ export function Navbar() {
                       {getUserInitials()}
                     </div>
                     <div className="hidden lg:flex flex-col items-start">
-                      <span className="text-sm font-medium leading-none max-w-[100px] truncate">{displayName}</span>
+                      <span className="text-sm font-medium leading-none max-w-[100px] truncate">
+                        {displayName}
+                      </span>
                       <span className="text-xs text-muted-foreground leading-none mt-0.5 max-w-[100px] truncate">
                         {displayEmail}
                       </span>
@@ -160,23 +163,24 @@ export function Navbar() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">
-                        {displayName}
-                      </p>
+                      <p className="text-sm font-medium">{displayName}</p>
                       <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  
+
                   {isAdmin && (
                     <>
-                        <DropdownMenuItem asChild>
-                            <Link href="/admin/dashboard" className="flex items-center gap-2 cursor-pointer text-primary focus:text-primary focus:bg-primary/10">
-                                <LayoutDashboard className="h-4 w-4" />
-                                Panel Administrativo
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href="/admin/dashboard"
+                          className="flex items-center gap-2 cursor-pointer text-primary focus:text-primary focus:bg-primary/10"
+                        >
+                          <LayoutDashboard className="h-4 w-4" />
+                          Panel Administrativo
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                     </>
                   )}
 
@@ -192,7 +196,7 @@ export function Navbar() {
                       Mis Pedidos
                     </Link>
                   </DropdownMenuItem>
-                  
+
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleLogout}
@@ -253,7 +257,7 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              
+
               {/* Admin Link Mobile */}
               {isAuthenticated && isAdmin && (
                 <Link
@@ -276,9 +280,7 @@ export function Navbar() {
                       {getUserInitials()}
                     </div>
                     <div className="overflow-hidden">
-                      <p className="text-sm font-medium truncate">
-                        {displayName}
-                      </p>
+                      <p className="text-sm font-medium truncate">{displayName}</p>
                       <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
                     </div>
                   </div>

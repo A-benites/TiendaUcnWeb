@@ -26,7 +26,13 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     accessToken: string;
-    user: NextAuthUser & { token: string; rut: string; firstName: string; lastName: string; role?: string };
+    user: NextAuthUser & {
+      token: string;
+      rut: string;
+      firstName: string;
+      lastName: string;
+      role?: string;
+    };
   }
 }
 
@@ -74,21 +80,22 @@ export const authOptions: NextAuthOptions = {
       // Initial sign in
       if (user) {
         token.accessToken = user.token;
-        
+
         // Decode the token to get the role
         try {
-            const decoded = jwtDecode<{ [key: string]: string | undefined }>(user.token);
-            // The claim name might be "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" or just "role"
-            // Adjust based on your backend's JWT structure
-            const role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || decoded.role;
-            
-            token.user = {
-                ...user,
-                role: role
-            };
+          const decoded = jwtDecode<{ [key: string]: string | undefined }>(user.token);
+          // The claim name might be "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" or just "role"
+          // Adjust based on your backend's JWT structure
+          const role =
+            decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || decoded.role;
+
+          token.user = {
+            ...user,
+            role: role,
+          };
         } catch (error) {
-            console.error("Error decoding token:", error);
-            token.user = user;
+          console.error("Error decoding token:", error);
+          token.user = user;
         }
       }
       return token;
