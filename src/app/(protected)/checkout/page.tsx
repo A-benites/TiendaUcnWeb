@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useCartStore } from "@/stores/cart.store";
 import { cartService } from "@/services/cart.service";
 import { createOrder } from "@/services/orders";
-import { useAuthStore } from "@/stores/auth.store";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -25,7 +25,8 @@ export default function CheckoutPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { items, getTotalPrice, clearCart } = useCartStore();
-  const { user } = useAuthStore();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

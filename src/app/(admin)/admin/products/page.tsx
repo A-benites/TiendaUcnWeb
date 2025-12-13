@@ -30,12 +30,12 @@ export default function AdminProductsPage() {
   };
 
   if (isLoading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
-  
+
   if (isError) return (
-      <div className="p-10 text-center text-red-500">
-        Error al cargar productos. Verifica tu conexión.
-      </div>
-    );
+    <div className="p-10 text-center text-red-500">
+      Error al cargar productos. Verifica tu conexión.
+    </div>
+  );
 
   const productList = data || { products: [], totalPages: 0, currentPage: 1, totalCount: 0 };
 

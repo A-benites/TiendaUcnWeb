@@ -25,7 +25,7 @@ export const ProductTable = ({ products }: ProductTableProps) => {
   const handleToggleStatus = (id: number, title: string) => {
     // Optimistic UI o simplemente feedback visual
     toggleMutation.mutate(id, {
-        onSuccess: () => toast.success(`Estado de "${title}" actualizado`)
+      onSuccess: () => toast.success(`Estado de "${title}" actualizado`)
     });
   };
 
@@ -91,9 +91,9 @@ export const ProductTable = ({ products }: ProductTableProps) => {
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/admin/products/edit/${product.id}`}>
-                            <Edit className="h-4 w-4 text-blue-500" />
-                        </Link>
+                      <Link href={`/admin/products/edit/${product.id}`}>
+                        <Edit className="h-4 w-4 text-blue-500" />
+                      </Link>
                     </Button>
                     <Button
                       variant="ghost"
