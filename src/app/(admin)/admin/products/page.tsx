@@ -37,7 +37,6 @@ export default function AdminProductsPage() {
       </div>
     );
 
-  // Asegurar que data existe, si no, usar un objeto vacío seguro
   const productList = data || { products: [], totalPages: 0, currentPage: 1, totalCount: 0 };
 
   return (
@@ -47,7 +46,6 @@ export default function AdminProductsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Productos</h1>
           <p className="text-muted-foreground">Gestiona el inventario de la tienda.</p>
         </div>
-        {/* BOTÓN ARREGLADO: Usa variantes de Shadcn */}
         <Link href="/admin/products/create">
           <Button>
             <Plus className="mr-2 h-4 w-4" /> Nuevo Producto
@@ -74,7 +72,6 @@ export default function AdminProductsPage() {
 
       <ProductTable products={productList.products} />
 
-      {/* Paginación */}
       {productList.totalPages > 1 && (
         <div className="flex justify-between items-center pt-4 border-t">
           <Button
@@ -96,6 +93,8 @@ export default function AdminProductsPage() {
           </Button>
         </div>
       )}
+
+      {isFetching && <p className="text-center text-sm text-primary mt-2">Cargando datos...</p>}
     </div>
   );
 }

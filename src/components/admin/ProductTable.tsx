@@ -38,7 +38,7 @@ export const ProductTable = ({ products }: ProductTableProps) => {
             <TableHead>Producto</TableHead>
             <TableHead>Precio / Stock</TableHead>
             <TableHead>Estado</TableHead>
-            <TableHead>Última Edición</TableHead>
+            <TableHead className="hidden sm:table-cell">Última Edición</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
@@ -57,7 +57,7 @@ export const ProductTable = ({ products }: ProductTableProps) => {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="relative h-10 w-10 overflow-hidden rounded-md border bg-muted">
+                    <div className="relative h-10 w-10 overflow-hidden rounded-md border bg-muted flex-shrink-0">
                       <Image
                         src={product.mainImageURL || "/placeholder.png"}
                         alt={product.title}
@@ -66,9 +66,9 @@ export const ProductTable = ({ products }: ProductTableProps) => {
                         unoptimized
                       />
                     </div>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{product.title}</span>
-                      <span className="text-xs text-muted-foreground">{product.brandName} · {product.categoryName}</span>
+                    <div className="flex flex-col min-w-0">
+                      <span className="font-medium truncate">{product.title}</span>
+                      <span className="text-xs text-muted-foreground truncate">{product.brandName} · {product.categoryName}</span>
                     </div>
                   </div>
                 </TableCell>
@@ -85,7 +85,7 @@ export const ProductTable = ({ products }: ProductTableProps) => {
                     {product.isAvailable ? "Activo" : "Inactivo"}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-muted-foreground text-xs">
+                <TableCell className="text-muted-foreground text-xs hidden sm:table-cell">
                   {format(new Date(product.updatedAt), "dd/MM/yy HH:mm")}
                 </TableCell>
                 <TableCell className="text-right">
