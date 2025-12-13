@@ -37,7 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import { ArrowRight, Loader2, User, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, User, Eye, EyeOff } from "lucide-react";
 
 // ==================== VALIDACIÓN DE RUT ====================
 const validateRut = (rut: string): boolean => {
@@ -232,6 +232,14 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-black">
       <div className="w-full max-w-lg">
+        <Link
+          href="/login"
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4 transition-colors"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver al inicio de sesión
+        </Link>
+
         <Card>
           <CardHeader>
             <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">

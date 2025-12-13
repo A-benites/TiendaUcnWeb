@@ -29,7 +29,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, LogIn, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Loader2, LogIn, Mail, Lock, ArrowLeft } from "lucide-react";
 
 // Esquema de validación con Zod
 const loginSchema = z.object({
@@ -72,7 +72,7 @@ export default function LoginPage() {
         queryClient.removeQueries({ queryKey: ["userOrders"] });
         queryClient.removeQueries({ queryKey: ["orderDetail"] });
         queryClient.removeQueries({ queryKey: ["profile"] });
-        
+
         toast.success("¡Bienvenido!");
         router.push(callbackUrl);
         router.refresh(); // Refresh to update server components/session
@@ -87,7 +87,16 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 dark:from-zinc-950 dark:to-black">
-      <Card className="w-full max-w-md shadow-xl">
+      <div className="w-full max-w-md">
+        <Link
+          href="/"
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4 transition-colors"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver a la tienda
+        </Link>
+
+        <Card className="w-full shadow-xl">
         <CardHeader className="space-y-4">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
             <LogIn className="h-7 w-7 text-primary" />
@@ -198,6 +207,7 @@ export default function LoginPage() {
           </Link>
         </CardFooter>
       </Card>
+      </div>
     </div>
   );
 }

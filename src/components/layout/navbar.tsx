@@ -66,7 +66,7 @@ export function Navbar() {
     queryClient.removeQueries({ queryKey: ["userOrders"] });
     queryClient.removeQueries({ queryKey: ["orderDetail"] });
     queryClient.removeQueries({ queryKey: ["profile"] });
-    
+
     await signOut({ redirect: false });
     toast.success("Sesión cerrada correctamente");
     router.push("/");

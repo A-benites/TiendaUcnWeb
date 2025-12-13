@@ -10,7 +10,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, ShieldCheck, AlertCircle } from "lucide-react";
+import { Loader2, ShieldCheck, AlertCircle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
@@ -93,6 +93,15 @@ export default function CheckoutPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <Button
+        onClick={() => router.back()}
+        variant="ghost"
+        className="mb-4 pl-0 hover:bg-transparent hover:text-primary"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Volver al carrito
+      </Button>
+
       <h1 className="text-3xl font-bold mb-8 flex items-center gap-2">
         <ShieldCheck className="h-8 w-8 text-primary" />
         Finalizar Compra

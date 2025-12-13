@@ -8,7 +8,8 @@ import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Mail, RefreshCw, Shield, ArrowRight, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { Loader2, Mail, RefreshCw, Shield, ArrowRight, CheckCircle2, ArrowLeft } from "lucide-react";
 
 function VerifyEmailContent() {
   const router = useRouter();
@@ -167,9 +168,18 @@ function VerifyEmailContent() {
 export default function VerifyEmailPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-black">
-      <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
-        <VerifyEmailContent />
-      </Suspense>
+      <div className="w-full max-w-md">
+        <Link
+          href="/register"
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4 transition-colors"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver al registro
+        </Link>
+        <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
+          <VerifyEmailContent />
+        </Suspense>
+      </div>
     </div>
   );
 }

@@ -40,7 +40,19 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, Lock, Loader2, Eye, EyeOff, Save, KeyRound, Mail, IdCard } from "lucide-react";
+import {
+  User,
+  Lock,
+  Loader2,
+  Eye,
+  EyeOff,
+  Save,
+  KeyRound,
+  Mail,
+  IdCard,
+  ArrowLeft,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // ==================== RUT VALIDATION ====================
 const validateRut = (rut: string): boolean => {
@@ -199,6 +211,7 @@ function ProfileSkeleton() {
 
 // ==================== MAIN COMPONENT ====================
 export default function ProfilePage() {
+  const router = useRouter();
   const { data: profile, isLoading, error, refetch } = useProfile();
   const updateProfileMutation = useUpdateProfile();
   const changePasswordMutation = useChangePassword();
@@ -376,6 +389,15 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto max-w-4xl p-6">
+      <Button
+        onClick={() => router.back()}
+        variant="ghost"
+        className="mb-4 pl-0 hover:bg-transparent hover:text-primary"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Volver
+      </Button>
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold">My Profile</h1>
         <p className="text-muted-foreground">
