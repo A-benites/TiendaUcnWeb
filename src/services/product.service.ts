@@ -8,24 +8,15 @@ export interface GetProductsParams {
   search?: string;
   page?: number;
   pageSize?: number;
-  category?: string;  // Filter by category name
-  brand?: string;     // Filter by brand name
+  category?: string; // Filter by category name
+  brand?: string; // Filter by brand name
   minPrice?: number;
   maxPrice?: number;
   sortBy?: ProductSortOption;
 }
 
 export async function getProducts(params: GetProductsParams = {}): Promise<ProductListResponse> {
-  const {
-    search,
-    page = 1,
-    pageSize = 12,
-    category,
-    brand,
-    minPrice,
-    maxPrice,
-    sortBy,
-  } = params;
+  const { search, page = 1, pageSize = 12, category, brand, minPrice, maxPrice, sortBy } = params;
 
   const queryParams: Record<string, string | number> = {
     pageNumber: page,
@@ -35,7 +26,7 @@ export async function getProducts(params: GetProductsParams = {}): Promise<Produ
   // Build search term combining user search with category/brand filters
   // The backend searchTerm searches in title, description, category name, and brand name
   const searchParts: string[] = [];
-  
+
   if (search && search.trim().length >= 2) {
     searchParts.push(search.trim());
   }
@@ -60,21 +51,17 @@ export async function getProducts(params: GetProductsParams = {}): Promise<Produ
 
   const res = await api.get("/products", { params: queryParams });
   const backend = res.data?.data ?? res.data ?? {};
-  
+
   let products = backend.products ?? [];
-  
+
   // Client-side filtering for exact category/brand matches
   // This provides precise filtering that searchTerm can't guarantee
   if (category) {
-    products = products.filter((p: { categoryName: string }) => 
-      p.categoryName === category
-    );
+    products = products.filter((p: { categoryName: string }) => p.categoryName === category);
   }
-  
+
   if (brand) {
-    products = products.filter((p: { brandName: string }) => 
-      p.brandName === brand
-    );
+    products = products.filter((p: { brandName: string }) => p.brandName === brand);
   }
 
   return {

@@ -1,9 +1,8 @@
-import { OrderDTO } from '@/services/orders';
-import Link from 'next/link';
-import { format } from 'date-fns';
-
-// Helper simple para moneda (debes tenerlo implementado en tu proyecto)
-const toMoney = (amount: number) => `$${amount.toFixed(2)}`;
+import { OrderDTO } from "@/services/orders";
+import Link from "next/link";
+import { formatCurrency, formatDate } from "@/utils/format";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 
 /**
  * <summary>
@@ -11,8 +10,8 @@ const toMoney = (amount: number) => `$${amount.toFixed(2)}`;
  * </summary>
  */
 interface OrderTableProps {
-    /** <summary>The list of orders (OrderDTO) to be displayed in the table.</summary> */
-    orders: OrderDTO[];
+  /** <summary>The list of orders (OrderDTO) to be displayed in the table.</summary> */
+  orders: OrderDTO[];
 }
 
 /**
@@ -23,41 +22,57 @@ interface OrderTableProps {
  * <returns>A React component rendering the order table.</returns>
  */
 export const OrderTable = ({ orders }: OrderTableProps) => {
-    return (
-        <div className="overflow-x-auto shadow-md sm:rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-100">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Code</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider text-right">Total</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {orders.map((order) => (
-                        <tr key={order.id} className="hover:bg-gray-50 transition duration-150">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">
-                                <Link href={`/orders/${order.id}`}>{order.code}</Link>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {order.createdAt 
-                                ? format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm') 
-                                : 'N/A'
-                            }
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800 text-right">
-                                {toMoney(order.total)}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                <Link href={`/orders/${order.id}`} className="text-blue-600 hover:text-blue-800 font-medium">
-                                    View Detail
-                                </Link>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    );
+  return (
+    <div className="overflow-x-auto rounded-md border">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-muted/50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Código
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Fecha
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Items
+            </th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Total
+            </th>
+            <th className="px-6 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-background divide-y divide-border">
+          {orders.map((order) => (
+            <tr key={order.id} className="hover:bg-muted/30 transition duration-150">
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <span className="font-mono">{order.code}</span>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                {order.createdAt ? formatDate(order.createdAt) : "N/A"}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors border-transparent bg-gray-100 text-gray-900 hover:bg-gray-200/80">
+                  {order.orderItems.reduce((acc, item) => acc + item.quantity, 0)} productos
+                </span>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-right">
+                {formatCurrency(order.total)}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                <Link href={`/orders/${order.id}`}>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Eye className="h-4 w-4 text-primary" />
+                    <span className="sr-only">Ver detalle</span>
+                  </Button>
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 };

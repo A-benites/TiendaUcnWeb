@@ -1,11 +1,13 @@
-'use client';
+"use client";
 
-import { useOrderDetailQuery } from '@/services/orders';
-import { useParams } from 'next/navigation';
-import { format } from 'date-fns';
-
-// Helper simple para moneda
-const toMoney = (amount: number) => `$${amount.toFixed(2)}`;
+import { useOrderDetailQuery } from "@/services/orders";
+import { useParams, useRouter } from "next/navigation";
+import { formatCurrency, formatDate } from "@/utils/format";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ArrowLeft, Loader2, Download, Package, Calendar, FileText } from "lucide-react";
+import Image from "next/image";
 
 /**
  * <summary>
@@ -17,80 +19,169 @@ const toMoney = (amount: number) => `$${amount.toFixed(2)}`;
  * <returns>A React component rendering the order detail view.</returns>
  */
 export default function OrderDetailPage() {
-    const params = useParams();
-    const orderId = Number(params.id); 
+  const params = useParams();
+  const router = useRouter();
+  const orderId = Number(params.id);
 
-    const { data, isLoading, isError } = useOrderDetailQuery(orderId);
+  const { data, isLoading, isError } = useOrderDetailQuery(orderId);
 
-    if (isLoading) return <div className="text-center py-10">Loading order detail...</div>;
-    if (isError) return <div className="text-center py-10 text-red-600">Error loading order detail.</div>;
-    if (!data) return <div className="text-center py-10 text-gray-500">Order not found or unauthorized.</div>;
-
-    const order = data;
-
+  if (isLoading) {
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-4">Order Detail #{order.code} 📄</h1>
-            <p className="mb-6 text-gray-600">
-                Order Date: {order.createdAt 
-                    ? format(new Date(order.createdAt), 'dd MMMM yyyy HH:mm') 
-                    : 'Date not registered'
-                }
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Summary Totals */}
-                <div className="md:col-span-1 bg-white p-6 rounded-lg shadow-lg">
-                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Totals Summary</h2>
-                    <div className="space-y-2">
-                        <p className="flex justify-between text-gray-600">
-                            <span>Subtotal:</span>
-                            <span className="font-medium">{toMoney(order.subTotal)}</span>
-                        </p>
-                        <p className="flex justify-between text-lg font-bold pt-3 border-t border-gray-200">
-                            <span>TOTAL PAID:</span>
-                            <span className="text-green-600">{toMoney(order.total)}</span>
-                        </p>
-                    </div>
-
-                    {/* Optional (Final Phase): PDF Download Button */}
-                    <button
-                        onClick={() => alert("PDF download function pending.")}
-                        className="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors"
-                    >
-                        Download Receipt (PDF) ⬇️
-                    </button>
-                </div>
-
-                {/* Order Items */}
-                <div className="md:col-span-2 bg-white p-6 rounded-lg shadow-lg">
-                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Products ({order.orderItems.length})</h2>
-                    <div className="space-y-5">
-                        {order.orderItems.map((item) => (
-                            <div key={item.id} className="flex gap-4 border-b pb-4 last:border-b-0 last:pb-0">
-                                {/* Product Image Placeholder */}
-                                <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0" 
-                                    style={{backgroundImage: `url(${item.imageAtMoment})`, backgroundSize: 'cover', backgroundPosition: 'center'}}
-                                />
-                                <div className="flex-grow">
-                                    <h3 className="font-medium text-lg">{item.titleAtMoment}</h3>
-                                    <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                                    {item.discountAtMoment > 0 && (
-                                        <p className="text-xs text-red-500 font-semibold">Discount Applied: {item.discountAtMoment}%</p>
-                                    )}
-                                </div>
-                                <div className="text-right flex flex-col justify-end">
-                                    <p className="font-semibold text-gray-900">
-                                        {toMoney(item.priceAtMoment * item.quantity * (1 - item.discountAtMoment / 100))}
-                                    </p>
-                                    <p className="text-xs text-gray-400">
-                                        @{toMoney(item.priceAtMoment)} each
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div className="flex flex-col justify-center items-center h-[60vh] gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-lg text-muted-foreground">Cargando detalle del pedido...</p>
+      </div>
     );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[60vh] gap-4">
+        <p className="text-lg font-medium text-destructive">
+          Error al cargar el detalle del pedido.
+        </p>
+        <Button onClick={() => router.back()} variant="outline">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver
+        </Button>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[60vh] gap-4">
+        <p className="text-lg text-muted-foreground">Pedido no encontrado o no autorizado.</p>
+        <Button onClick={() => router.back()} variant="outline">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver
+        </Button>
+      </div>
+    );
+  }
+
+  const order = data;
+
+  return (
+    <div className="container mx-auto p-4 md:py-8">
+      <Button
+        onClick={() => router.back()}
+        variant="ghost"
+        className="mb-6 pl-0 hover:bg-transparent hover:text-primary"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Volver al historial
+      </Button>
+
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2">Pedido #{order.code}</h1>
+          <div className="flex items-center gap-2 text-muted-foreground mt-2">
+            <Calendar className="h-4 w-4" />
+            <p>
+              Realizado el {order.createdAt ? formatDate(order.createdAt) : "Fecha no registrada"}
+            </p>
+          </div>
+        </div>
+        <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary/10 text-primary hover:bg-primary/20">
+          Completado
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Order Items */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              Productos ({order.orderItems.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {order.orderItems.map((item) => (
+              <div key={item.id} className="flex gap-4">
+                {/* Product Image */}
+                <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border bg-muted">
+                  <Image
+                    src={item.imageAtMoment || "/placeholder.png"}
+                    alt={item.titleAtMoment}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+                <div className="flex flex-1 flex-col justify-between">
+                  <div>
+                    <h3 className="font-medium text-lg line-clamp-1">{item.titleAtMoment}</h3>
+                    <div className="mt-1 flex text-sm text-muted-foreground">
+                      <p className="border-r pr-2 mr-2">
+                        Cantidad:{" "}
+                        <span className="font-medium text-foreground">{item.quantity}</span>
+                      </p>
+                      <p>
+                        Precio unitario:{" "}
+                        <span className="font-medium text-foreground">
+                          {formatCurrency(item.priceAtMoment)}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-end justify-between">
+                    {item.discountAtMoment > 0 ? (
+                      <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-red-100 text-red-900 hover:bg-red-200">
+                        -{item.discountAtMoment}% Descuento
+                      </span>
+                    ) : (
+                      <span></span>
+                    )}
+                    <p className="font-bold text-lg">
+                      {formatCurrency(
+                        item.priceAtMoment * item.quantity * (1 - item.discountAtMoment / 100)
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Summary Totals */}
+        <div className="md:col-span-1 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Resumen
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between text-muted-foreground">
+                <span>Subtotal</span>
+                <span>{formatCurrency(order.subTotal)}</span>
+              </div>
+              {/* You can add shipping or tax rows here if needed */}
+              <Separator />
+              <div className="flex justify-between items-center pt-2">
+                <span className="font-bold text-lg">Total Pagado</span>
+                <span className="font-bold text-xl text-primary">
+                  {formatCurrency(order.total)}
+                </span>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => alert("La función de descarga de PDF está pendiente.")}
+              >
+                <Download className="h-4 w-4" />
+                Descargar Comprobante
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
 }

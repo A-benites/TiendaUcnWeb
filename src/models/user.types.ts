@@ -13,9 +13,9 @@ export const genderMap: Record<GenderEnum, GenderString> = {
 
 // Map from string to numeric enum
 export const genderToEnumMap: Record<GenderString, GenderEnum> = {
-  "Masculino": 0,
-  "Femenino": 1,
-  "Otro": 2,
+  Masculino: 0,
+  Femenino: 1,
+  Otro: 2,
 };
 
 // Helper function to convert gender from backend (number) to frontend (string)

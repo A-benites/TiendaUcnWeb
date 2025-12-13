@@ -1,13 +1,16 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
 import { useProduct } from "@/hooks/useProducts";
 import { AddToCartControl } from "@/components/products/AddToCartControl";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export default function ProductDetailPage() {
+  const router = useRouter();
   // Estado para manejar errores de carga de imagen
   const [imgError, setImgError] = useState(false);
 
@@ -32,6 +35,15 @@ export default function ProductDetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Button
+        onClick={() => router.back()}
+        variant="ghost"
+        className="mb-6 pl-0 hover:bg-transparent hover:text-primary"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Volver
+      </Button>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* SECCIÓN IZQUIERDA: Galería de Imágenes */}
         <div className="space-y-4">

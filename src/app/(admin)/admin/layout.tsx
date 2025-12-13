@@ -1,6 +1,5 @@
-
-import React from 'react';
-import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import React from "react";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 /**
  * <summary>
@@ -10,17 +9,14 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar';
  * <returns>A React component rendering the fixed sidebar and the main content area.</returns>
  */
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar: Structure for fixed navigation */}
-      <AdminSidebar />
-      
-      {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto p-8">
-        <div className="max-w-7xl mx-auto">
-          {children}
-        </div>
-      </main>
-    </div>
-  );
+  return (
+    <div className="flex h-screen bg-gray-50">
+            {/* Sidebar: Structure for fixed navigation */}
+            <AdminSidebar />            {/* Main Content Area */}     {" "}
+      <main className="flex-1 overflow-y-auto p-8">
+                <div className="max-w-7xl mx-auto">          {children}        </div>     {" "}
+      </main>
+         {" "}
+    </div>
+  );
 }
