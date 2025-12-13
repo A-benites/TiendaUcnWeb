@@ -3,6 +3,7 @@
 import { useSyncExternalStore, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import {
   ShoppingCart,
   User,
@@ -16,9 +17,9 @@ import {
   Info,
   UserCircle,
   LogIn,
+  LayoutDashboard,
 } from "lucide-react";
 import { useCartStore } from "@/stores/cart.store";
-import { useAuthStore } from "@/stores/auth.store";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -43,18 +44,23 @@ export function Navbar() {
     () => false
   );
 
-  // Auth store
-  const { isAuthenticated, user, logout } = useAuthStore();
+  // Auth store via NextAuth
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === "authenticated";
+  const user = session?.user;
+  
+  // Check if role is Admin (case insensitive check is safer)
+  const isAdmin = user?.role?.toLowerCase() === "admin" || user?.role?.toLowerCase() === "administrador";
+
   const totalItems = useCartStore((state) => state.getTotalItems());
 
   // Hidratar stores en el cliente
   useEffect(() => {
-    useAuthStore.persist.rehydrate();
     useCartStore.persist.rehydrate();
   }, []);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
     toast.success("Sesión cerrada correctamente");
     router.push("/");
     setMobileMenuOpen(false);
@@ -68,9 +74,18 @@ export function Navbar() {
 
   // Obtener iniciales del usuario
   const getUserInitials = () => {
-    if (!user) return "U";
-    return `${user.firstName?.charAt(0) || ""}${user.lastName?.charAt(0) || ""}`.toUpperCase();
+    if (!user || !user.name) return "U";
+    // Si el nombre viene completo "Juan Perez"
+    const parts = user.name.split(" ");
+    if (parts.length >= 2) {
+        return `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase();
+    }
+    return user.name.charAt(0).toUpperCase();
   };
+
+  // Helper para mostrar nombre (NextAuth usa 'name' por defecto)
+  const displayName = user?.name || user?.email || "Usuario";
+  const displayEmail = user?.email || "";
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg supports-backdrop-filter:bg-background/60">
@@ -99,6 +114,16 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+            {/* Admin Link Desktop */}
+            {isAuthenticated && isAdmin && (
+                <Link
+                    href="/admin/products"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                >
+                    <LayoutDashboard className="h-4 w-4" />
+                    Panel Admin
+                </Link>
+            )}
           </nav>
 
           {/* Desktop Right Section */}
@@ -124,9 +149,9 @@ export function Navbar() {
                       {getUserInitials()}
                     </div>
                     <div className="hidden lg:flex flex-col items-start">
-                      <span className="text-sm font-medium leading-none">{user.firstName}</span>
-                      <span className="text-xs text-muted-foreground leading-none mt-0.5">
-                        {user.email}
+                      <span className="text-sm font-medium leading-none max-w-[100px] truncate">{displayName}</span>
+                      <span className="text-xs text-muted-foreground leading-none mt-0.5 max-w-[100px] truncate">
+                        {displayEmail}
                       </span>
                     </div>
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -136,12 +161,25 @@ export function Navbar() {
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium">
-                        {user.firstName} {user.lastName}
+                        {displayName}
                       </p>
-                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  
+                  {isAdmin && (
+                    <>
+                        <DropdownMenuItem asChild>
+                            <Link href="/admin/dashboard" className="flex items-center gap-2 cursor-pointer text-primary focus:text-primary focus:bg-primary/10">
+                                <LayoutDashboard className="h-4 w-4" />
+                                Panel Administrativo
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                    </>
+                  )}
+
                   <DropdownMenuItem asChild>
                     <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
                       <UserCircle className="h-4 w-4" />
@@ -154,17 +192,11 @@ export function Navbar() {
                       Mis Pedidos
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/settings" className="flex items-center gap-2 cursor-pointer">
-                      <Settings className="h-4 w-4" />
-                      Configuración
-                    </Link>
-                  </DropdownMenuItem>
+                  
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    variant="destructive"
-                    className="cursor-pointer"
+                    className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
                     Cerrar Sesión
@@ -221,6 +253,18 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              
+              {/* Admin Link Mobile */}
+              {isAuthenticated && isAdmin && (
+                <Link
+                  href="/admin/products"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                >
+                  <LayoutDashboard className="h-5 w-5" />
+                  Panel Admin
+                </Link>
+              )}
             </div>
 
             <div className="border-t border-border/40 pt-4">
@@ -231,11 +275,11 @@ export function Navbar() {
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
                       {getUserInitials()}
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">
-                        {user.firstName} {user.lastName}
+                    <div className="overflow-hidden">
+                      <p className="text-sm font-medium truncate">
+                        {displayName}
                       </p>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                      <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
                     </div>
                   </div>
 
