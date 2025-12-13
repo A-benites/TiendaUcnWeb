@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { api } from "@/lib/axios"; // Asume tu cliente Axios configurado
+import { api } from "@/lib/axios";
 import {
   useQuery,
   useMutation,
@@ -28,7 +28,6 @@ export interface AdminProductSearchParams {
   pageSize: number;
   /** <summary>Optional search term to filter by product title or description.</summary> */
   search?: string;
-  // ... other filters (CategoryId, BrandId, etc.) could be added here
 }
 
 /**
@@ -85,31 +84,85 @@ export interface ListedProductsForAdminDTO {
   pageSize: number;
 }
 
-// --- Clave de Consulta ---
+/**
+ * <summary>
+ * Data Transfer Object (DTO) for product images.
+ * </summary>
+ */
+export interface ProductImageDTO {
+  /** <summary>Image identifier.</summary> */
+  id: number;
+  /** <summary>Image URL.</summary> */
+  url: string;
+  /** <summary>Cloudinary public ID (optional).</summary> */
+  publicId?: string;
+}
+
+/**
+ * <summary>
+ * Data Transfer Object (DTO) for displaying detailed product information in administration.
+ * Used for the Edit Form.
+ * </summary>
+ * <remarks>
+ * Maps to ProductDetailForAdminDTO in the C# backend.
+ * </remarks>
+ */
+export interface ProductDetailForAdminDTO {
+  /** <summary>Unique identifier for the product.</summary> */
+  id: number;
+  /** <summary>Product title.</summary> */
+  title: string;
+  /** <summary>Product description.</summary> */
+  description: string;
+  /** <summary>List of product images.</summary> */
+  images: ProductImageDTO[]; // Mapeado de Images en C#
+  /** <summary>Product price (formatted as string).</summary> */
+  price: string;
+  /** <summary>Discount percentage applied to the product.</summary> */
+  discount: number;
+  /** <summary>Final price with discount applied.</summary> */
+  finalPrice: string;
+  /** <summary>Available stock quantity.</summary> */
+  stock: number;
+  /** <summary>Stock indicator.</summary> */
+  stockIndicator: string;
+  /** <summary>Name of the product's category.</summary> */
+  categoryName: string;
+  /** <summary>ID of the product's category.</summary> */
+  categoryId: number;
+  /** <summary>Name of the product's brand.</summary> */
+  brandName: string;
+  /** <summary>ID of the product's brand.</summary> */
+  brandId: number;
+  /** <summary>Product status as text.</summary> */
+  statusName: string;
+  /** <summary>Indicates whether the product is available for sale.</summary> */
+  isAvailable: boolean;
+  /** <summary>Product creation date.</summary> */
+  createdAt: string;
+  /** <summary>Product last update date.</summary> */
+  updatedAt: string;
+  /** <summary>URL of the main product image.</summary> */
+  mainImageURL?: string;
+
+}
+
+
 const ADMIN_PRODUCTS_QUERY_KEY = "adminProductsList";
 
-// --- Funciones de Fetching y Mutación ---
 
 /**
  * <summary>
  * Fetches a paginated list of products for the administration panel.
  * </summary>
- * <param name="params">The pagination and optional search parameters.</param>
- * <returns>A Promise resolving to a ListedProductsForAdminDTO object.</returns>
- * <remarks>
- * Maps frontend parameters (page, pageSize, search) to backend names (PageNumber, PageSize, SearchTerm).
- * Includes contingency error handling for the workshop, returning an empty list
- * for 4xx errors (e.g., 400, 401, 403).
- * </remarks>
  */
 export async function getAdminProducts(
   params: AdminProductSearchParams
 ): Promise<ListedProductsForAdminDTO> {
-  // Map frontend names to backend required names (e.g., Page -> PageNumber)
   const queryParams: Record<string, any> = {
     PageNumber: Number(params.page),
     PageSize: Number(params.pageSize),
-  }; // Only include search term if it has a value
+  };
   if (params.search && params.search.trim() !== "") {
     queryParams.SearchTerm = params.search.trim();
   }
@@ -118,7 +171,7 @@ export async function getAdminProducts(
     return response.data.data;
   } catch (err) {
     console.error("Error fetching admin products. Check parameters or auth:", err);
-    const error = err as AxiosError; // Contingency for 4xx client errors (400, 401, 403)
+    const error = err as AxiosError;
     if (error.response && error.response.status >= 400 && error.response.status < 500) {
       return {
         products: [],
@@ -127,7 +180,7 @@ export async function getAdminProducts(
         pageSize: params.pageSize,
         totalPages: 0,
       };
-    } // Re-throw other errors (5xx, network failures)
+    }
     throw error;
   }
 }
@@ -136,11 +189,6 @@ export async function getAdminProducts(
  * <summary>
  * Toggles the availability status of a specific product (Active/Inactive).
  * </summary>
- * <param name="id">The unique identifier of the product to update.</param>
- * <returns>A Promise that resolves upon successful status update.</returns>
- * <remarks>
- * Calls the protected endpoint: PATCH /admin/products/{id}/status.
- * </remarks>
  */
 export async function toggleProductStatus(id: number): Promise<void> {
   await api.patch(`/admin/products/${id}/status`);
@@ -152,8 +200,6 @@ export async function toggleProductStatus(id: number): Promise<void> {
  * <summary>
  * React Query hook for fetching the paginated admin product list.
  * </summary>
- * <param name="params">The filter and pagination parameters.</param>
- * <returns>The result object from the useQuery hook (with error type set to Error).</returns>
  */
 export const useAdminProductsQuery = (
   params: AdminProductSearchParams
@@ -170,11 +216,6 @@ export const useAdminProductsQuery = (
  * <summary>
  * React Query hook for mutating the product status (toggle Active/Inactive).
  * </summary>
- * <returns>The result object from the useMutation hook.</returns>
- * <remarks>
- * On success, it automatically invalidates the primary admin product list query
- * to refresh the table UI.
- * </remarks>
  */
 export const useToggleProductStatusMutation = (): UseMutationResult<void, Error, number> => {
   const queryClient = useQueryClient();
@@ -182,7 +223,6 @@ export const useToggleProductStatusMutation = (): UseMutationResult<void, Error,
   return useMutation<void, Error, number>({
     mutationFn: toggleProductStatus,
     onSuccess: () => {
-      // Invalidate the product list query to show the updated status immediately
       queryClient.invalidateQueries({ queryKey: [ADMIN_PRODUCTS_QUERY_KEY] });
     },
   });
