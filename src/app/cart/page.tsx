@@ -1,16 +1,39 @@
 "use client";
 
+import { useState } from "react";
 import { useCartStore } from "@/stores/cart.store";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, AlertTriangle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, getTotalPrice } = useCartStore();
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
 
   const totalPrice = getTotalPrice();
+
+  const handleRemoveItem = () => {
+    if (itemToDelete !== null) {
+      removeItem(itemToDelete);
+      setItemToDelete(null);
+    }
+  };
+
+  const handleClearCart = () => {
+    clearCart();
+    setIsClearModalOpen(false);
+  };
 
   if (items.length === 0) {
     return (
@@ -85,7 +108,7 @@ export default function CartPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => setItemToDelete(item.id)}
                       className="text-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -120,7 +143,11 @@ export default function CartPage() {
             </Card>
           ))}
 
-          <Button variant="outline" onClick={clearCart} className="w-full">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsClearModalOpen(true)} 
+            className="w-full"
+          >
             <Trash2 className="mr-2 h-4 w-4" />
             Vaciar Carrito
           </Button>
@@ -150,9 +177,11 @@ export default function CartPage() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-2">
-              <Button className="w-full" size="lg">
-                Proceder al Pago
-              </Button>
+              <Link href="/checkout" className="w-full">
+                <Button className="w-full" size="lg">
+                    Proceder al Pago
+                </Button>
+              </Link>
               <Link href="/products" className="w-full">
                 <Button variant="outline" className="w-full">
                   Continuar Comprando
@@ -162,6 +191,53 @@ export default function CartPage() {
           </Card>
         </div>
       </div>
+
+      {/* Modal Confirmación Eliminar Item */}
+      <Dialog open={itemToDelete !== null} onOpenChange={(open) => !open && setItemToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                Eliminar Producto
+            </DialogTitle>
+            <DialogDescription>
+              ¿Estás seguro de que deseas eliminar este producto del carrito?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setItemToDelete(null)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={handleRemoveItem}>
+              Eliminar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Confirmación Vaciar Carrito */}
+      <Dialog open={isClearModalOpen} onOpenChange={setIsClearModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                Vaciar Carrito
+            </DialogTitle>
+            <DialogDescription>
+              ¿Estás seguro de que deseas vaciar todo el carrito? Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsClearModalOpen(false)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={handleClearCart}>
+              Vaciar Carrito
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+

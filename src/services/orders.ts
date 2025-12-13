@@ -97,7 +97,7 @@ export async function getOrders(filter: UserOrderFilterDTO): Promise<OrderListDT
     };
     
     try {
-        const response = await api.get('/api/orders', { params });
+        const response = await api.get('/orders', { params });
         return response.data.data;
     } catch (err) {
         // Log the error for debugging backend issues
@@ -129,8 +129,19 @@ export async function getOrders(filter: UserOrderFilterDTO): Promise<OrderListDT
  * <returns>A Promise resolving to an OrderDTO object (the order detail).</returns>
  */
 export async function getOrderDetail(id: number): Promise<OrderDTO> {
-    const response = await api.get(`/api/orders/${id}`);
+    const response = await api.get(`/orders/${id}`);
     return response.data.data;
+}
+
+/**
+ * <summary>
+ * Creates a new order from the current backend cart.
+ * </summary>
+ * <returns>A Promise resolving to the created OrderDTO.</returns>
+ */
+export async function createOrder(): Promise<OrderDTO> {
+    const response = await api.post('/orders');
+    return response.data;
 }
 
 

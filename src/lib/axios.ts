@@ -6,6 +6,7 @@ export const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // Necesario para enviar cookies (como buyerId) con cada solicitud
 });
 
 // Interceptor para añadir el token a las peticiones
