@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useAdminProductsQuery, AdminProductSearchParams } from "@/services/admin-products";
 import { ProductTable } from "@/components/admin/ProductTable";
-import { Button } from "@/components/ui/button"; // Importar componente UI
-import { Input } from "@/components/ui/input";   // Importar input UI
-import { Search, Plus, Loader2 } from "lucide-react"; // Usar Lucide (consistente con tu proyecto)
-import Link from "next/link"; // Para navegar a crear producto
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, Plus, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export default function AdminProductsPage() {
   const [params, setParams] = useState<AdminProductSearchParams>({
@@ -33,7 +33,7 @@ export default function AdminProductsPage() {
 
   if (isError) return (
     <div className="p-10 text-center text-red-500">
-      Error al cargar productos. Verifica tu conexión.
+      Error al cargar productos. Verifica tu conexion.
     </div>
   );
 
@@ -58,7 +58,7 @@ export default function AdminProductsPage() {
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Buscar por título..."
+              placeholder="Buscar por titulo..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -82,7 +82,7 @@ export default function AdminProductsPage() {
             Anterior
           </Button>
           <span className="text-sm text-muted-foreground">
-            Página {productList.currentPage} de {productList.totalPages}
+            Pagina {productList.currentPage} de {productList.totalPages}
           </span>
           <Button
             variant="outline"

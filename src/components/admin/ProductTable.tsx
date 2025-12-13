@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ProductForAdminDTO, useToggleProductStatusMutation } from "@/services/admin-products";
-import { Edit, Power, PowerOff, Loader2 } from "lucide-react"; // Usamos Lucide icons consistente con el resto
+import { Edit, Power, PowerOff, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +23,6 @@ export const ProductTable = ({ products }: ProductTableProps) => {
   const toggleMutation = useToggleProductStatusMutation();
 
   const handleToggleStatus = (id: number, title: string) => {
-    // Optimistic UI o simplemente feedback visual
     toggleMutation.mutate(id, {
       onSuccess: () => toast.success(`Estado de "${title}" actualizado`)
     });
@@ -38,7 +37,7 @@ export const ProductTable = ({ products }: ProductTableProps) => {
             <TableHead>Producto</TableHead>
             <TableHead>Precio / Stock</TableHead>
             <TableHead>Estado</TableHead>
-            <TableHead className="hidden sm:table-cell">Última Edición</TableHead>
+            <TableHead className="hidden sm:table-cell">Ultima Edicion</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
@@ -68,7 +67,7 @@ export const ProductTable = ({ products }: ProductTableProps) => {
                     </div>
                     <div className="flex flex-col min-w-0">
                       <span className="font-medium truncate">{product.title}</span>
-                      <span className="text-xs text-muted-foreground truncate">{product.brandName} · {product.categoryName}</span>
+                      <span className="text-xs text-muted-foreground truncate">{product.brandName} - {product.categoryName}</span>
                     </div>
                   </div>
                 </TableCell>
