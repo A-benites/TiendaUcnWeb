@@ -114,7 +114,7 @@ export default function AdminBrandsPage() {
         </table>
       </div>
 
-      {/* Reuse Modals logic from Categories (Sasdimplified for brevity) */}
+      {/* Reuse Modals logic from Categories    (Sasdimplified for brevity) */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent>
           <DialogHeader>

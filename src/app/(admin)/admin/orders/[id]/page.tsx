@@ -159,7 +159,7 @@ export default function AdminOrderDetailPage() {
           </Card>
         </div>
 
-        {/* Resumen */}
+        {/*  */}
         <div className="space-y-6">
           <Card>
             <CardHeader className="pb-3">
