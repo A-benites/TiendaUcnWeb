@@ -12,10 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Search, Eye } from "lucide-react";
+import { Search, Eye, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { formatCurrency, formatDate, getOrderStatus } from "@/utils/format";
+import { formatCurrency, getOrderStatus } from "@/utils/format";
 import { Badge } from "@/components/ui/badge";
+import { TableSkeleton } from "@/components/ui/skeletons";
 
 export default function AdminOrdersPage() {
   const [params, setParams] = useState<AdminOrderSearchParams>({
@@ -25,7 +26,7 @@ export default function AdminOrdersPage() {
     status: "all",
   });
   const [searchTerm, setSearchTerm] = useState("");
-  const { data, isLoading } = useAdminOrders(params);
+  const { data, isLoading, isError, refetch } = useAdminOrders(params);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +66,14 @@ export default function AdminOrdersPage() {
       </div>
 
       {isLoading ? (
-        <Loader2 className="animate-spin mx-auto" />
+        <TableSkeleton rows={10} />
+      ) : isError ? (
+        <div className="flex flex-col items-center gap-4 py-10 border rounded-md">
+          <p className="text-red-500 font-medium">No se pudieron cargar los pedidos</p>
+          <Button onClick={() => refetch()} variant="outline" className="gap-2">
+            <RefreshCw className="h-4 w-4" /> Reintentar
+          </Button>
+        </div>
       ) : (
         <div className="border rounded-md">
           <table className="w-full text-sm text-left">
@@ -86,13 +94,13 @@ export default function AdminOrdersPage() {
                   <td className="px-6 py-4">{formatCurrency(order.total)}</td>
                   <td className="px-6 py-4">
                     <Badge className={getOrderStatus(order.status || "Pending").color}>
-                      {getOrderStatus(order.status || "Pending").label }
+                      {getOrderStatus(order.status || "Pending").label}
                     </Badge>
                   </td>
                   <td className="px-6 py-4">
                     <Link href={`/admin/orders/${order.id}`}>
                       <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4 mr-2" /> Detalle 
+                        <Eye className="h-4 w-4 mr-2" /> Detalle
                       </Button>
                     </Link>
                   </td>

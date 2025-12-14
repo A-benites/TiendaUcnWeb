@@ -6,10 +6,18 @@ import { toast } from "sonner";
 import { authService } from "@/services/auth.service";
 import { AxiosError } from "axios";
 import { Button } from "@/components/ui/button";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { InputOTP } from "@/components/ui/input-otp";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { Loader2, Mail, RefreshCw, Shield, ArrowRight, CheckCircle2, ArrowLeft } from "lucide-react";
+import {
+  Loader2,
+  Mail,
+  RefreshCw,
+  Shield,
+  ArrowRight,
+  CheckCircle2,
+  ArrowLeft,
+} from "lucide-react";
 
 function VerifyEmailContent() {
   const router = useRouter();
@@ -115,22 +123,11 @@ function VerifyEmailContent() {
       <CardContent className="space-y-6">
         <div className="flex justify-center">
           <InputOTP
-            maxLength={6}
+            length={6}
             value={verificationCode}
             onChange={setVerificationCode}
             disabled={isLoading}
-          >
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-            </InputOTPGroup>
-            <InputOTPGroup>
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
+          />
         </div>
 
         <Button

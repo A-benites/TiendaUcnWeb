@@ -146,7 +146,7 @@ export const useAdminProductDetail = (id: number) => {
 export const useAdminUpdateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: ProductUpdateDTO }) => 
+    mutationFn: ({ id, data }: { id: number; data: ProductUpdateDTO }) =>
       updateAdminProduct(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [ADMIN_PRODUCTS_QUERY_KEY] });

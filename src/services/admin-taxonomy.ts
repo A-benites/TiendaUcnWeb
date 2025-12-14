@@ -26,7 +26,6 @@ async function remove(type: TaxonomyType, id: number) {
   await api.delete(`/admin/${type}/${id}`);
 }
 
-// Hook Reutilizable
 export function useAdminTaxonomy(type: TaxonomyType) {
   const queryClient = useQueryClient();
   const queryKey = [`admin-${type}`];
@@ -40,9 +39,9 @@ export function useAdminTaxonomy(type: TaxonomyType) {
     mutationFn: (name: string) => create(type, name),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast.success("Elemento creado exitosamente");
+      toast.success("Creado exitosamente");
     },
-    onError: () => toast.error("Error al crear. Verifica si ya existe."),
+    onError: () => toast.error("Error al crear"),
   });
 
   const updateMutation = useMutation({
@@ -62,7 +61,7 @@ export function useAdminTaxonomy(type: TaxonomyType) {
     },
     onError: (error: AxiosError) => {
       if (error.response?.status === 409) {
-        toast.error("No se puede eliminar: Está en uso por productos.");
+        toast.error("No se puede eliminar: Está en uso.");
       } else {
         toast.error("Error al eliminar.");
       }
@@ -72,6 +71,10 @@ export function useAdminTaxonomy(type: TaxonomyType) {
   return {
     items: query.data || [],
     isLoading: query.isLoading,
+    // ESTAS DOS LÍNEAS SON LAS QUE FALTABAN:
+    isError: query.isError,
+    refetch: query.refetch,
+    //
     create: createMutation,
     update: updateMutation,
     remove: deleteMutation,

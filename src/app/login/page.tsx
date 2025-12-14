@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -39,7 +39,7 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -97,117 +97,127 @@ export default function LoginPage() {
         </Link>
 
         <Card className="w-full shadow-xl">
-        <CardHeader className="space-y-4">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-            <LogIn className="h-7 w-7 text-primary" />
-          </div>
-          <div className="space-y-2 text-center">
-            <CardTitle className="text-2xl font-bold">Bienvenido</CardTitle>
-            <CardDescription>Ingresa tus credenciales para acceder a tu cuenta</CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              {/* Campo Email */}
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      Correo Electrónico
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="usuario@ejemplo.com"
-                        type="email"
-                        autoComplete="email"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Campo Password */}
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Lock className="h-4 w-4 text-muted-foreground" />
-                      Contraseña
-                    </FormLabel>
-                    <FormControl>
-                      <div className="relative">
+          <CardHeader className="space-y-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+              <LogIn className="h-7 w-7 text-primary" />
+            </div>
+            <div className="space-y-2 text-center">
+              <CardTitle className="text-2xl font-bold">Bienvenido</CardTitle>
+              <CardDescription>Ingresa tus credenciales para acceder a tu cuenta</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                {/* Campo Email */}
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        Correo Electrónico
+                      </FormLabel>
+                      <FormControl>
                         <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="••••••••"
-                          autoComplete="current-password"
+                          placeholder="usuario@ejemplo.com"
+                          type="email"
+                          autoComplete="email"
                           {...field}
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* Link de recuperar contraseña */}
-              <div className="flex justify-end">
-                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                  ¿Olvidaste tu contraseña?
-                </Link>
+                {/* Campo Password */}
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                        Contraseña
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            autoComplete="current-password"
+                            {...field}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Link de recuperar contraseña */}
+                <div className="flex justify-end">
+                  <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </div>
+
+                <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Ingresando...
+                    </>
+                  ) : (
+                    <>
+                      Iniciar Sesión
+                      <LogIn className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="flex flex-col gap-4">
+            <div className="relative w-full">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
               </div>
-
-              <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Ingresando...
-                  </>
-                ) : (
-                  <>
-                    Iniciar Sesión
-                    <LogIn className="ml-2 h-4 w-4" />
-                  </>
-                )}
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">¿Nuevo en Tienda UCN?</span>
+              </div>
+            </div>
+            <Link href="/register" className="w-full">
+              <Button variant="outline" className="w-full">
+                Crear una cuenta
               </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <div className="relative w-full">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">¿Nuevo en Tienda UCN?</span>
-            </div>
-          </div>
-          <Link href="/register" className="w-full">
-            <Button variant="outline" className="w-full">
-              Crear una cuenta
-            </Button>
-          </Link>
-        </CardFooter>
-      </Card>
+            </Link>
+          </CardFooter>
+        </Card>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={<div className="flex min-h-screen items-center justify-center">Cargando...</div>}
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
