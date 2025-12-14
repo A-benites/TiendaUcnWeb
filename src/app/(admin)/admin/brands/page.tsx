@@ -12,7 +12,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Edit, Trash2, Plus, Loader2, AlertTriangle, Bookmark } from "lucide-react";
+import { Edit, Trash2, Plus, Loader2, Bookmark } from "lucide-react";
 
 export default function AdminBrandsPage() {
   const { items, isLoading, create, update, remove } = useAdminTaxonomy("brands");

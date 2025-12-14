@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2, Search, Eye } from "lucide-react";
 import Link from "next/link";
-import { formatCurrency, formatDate, getOrderStatus } from "@/utils/format";
+import { formatCurrency, getOrderStatus } from "@/utils/format";
 import { Badge } from "@/components/ui/badge";
 
 export default function AdminOrdersPage() {
@@ -86,13 +86,13 @@ export default function AdminOrdersPage() {
                   <td className="px-6 py-4">{formatCurrency(order.total)}</td>
                   <td className="px-6 py-4">
                     <Badge className={getOrderStatus(order.status || "Pending").color}>
-                      {getOrderStatus(order.status || "Pending").label }
+                      {getOrderStatus(order.status || "Pending").label}
                     </Badge>
                   </td>
                   <td className="px-6 py-4">
                     <Link href={`/admin/orders/${order.id}`}>
                       <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4 mr-2" /> Detalle 
+                        <Eye className="h-4 w-4 mr-2" /> Detalle
                       </Button>
                     </Link>
                   </td>

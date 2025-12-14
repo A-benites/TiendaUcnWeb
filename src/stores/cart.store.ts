@@ -4,7 +4,15 @@ import { CartState } from "@/models/cart.types";
 import { ProductDetail } from "@/models/product.types";
 import { toast } from "sonner";
 
-export const useCartStore = create<CartState>()(
+// Interfaz extendida para incluir métodos silenciosos (sin toast)
+interface CartStoreExtended extends CartState {
+  // Métodos silenciosos para uso con mutations de React Query
+  removeItemSilent: (productId: number) => void;
+  updateQuantitySilent: (productId: number, quantity: number) => void;
+  clearCartSilent: () => void;
+}
+
+export const useCartStore = create<CartStoreExtended>()(
   persist(
     (set, get) => ({
       items: [],
@@ -43,6 +51,11 @@ export const useCartStore = create<CartState>()(
         toast.info("Producto eliminado del carrito");
       },
 
+      // Versión silenciosa sin toast (para uso con mutations)
+      removeItemSilent: (productId: number) => {
+        set({ items: get().items.filter((item) => item.id !== productId) });
+      },
+
       updateQuantity: (productId: number, quantity: number) => {
         const item = get().items.find((i) => i.id === productId);
         if (!item) return;
@@ -59,9 +72,27 @@ export const useCartStore = create<CartState>()(
         });
       },
 
+      // Versión silenciosa sin toast (para uso con mutations)
+      updateQuantitySilent: (productId: number, quantity: number) => {
+        const item = get().items.find((i) => i.id === productId);
+        if (!item) return;
+
+        if (quantity > item.stock) return;
+        if (quantity < 1) return;
+
+        set({
+          items: get().items.map((item) => (item.id === productId ? { ...item, quantity } : item)),
+        });
+      },
+
       clearCart: () => {
         set({ items: [] });
         toast.info("Carrito vaciado");
+      },
+
+      // Versión silenciosa sin toast (para uso con mutations)
+      clearCartSilent: () => {
+        set({ items: [] });
       },
 
       getTotalItems: () => {

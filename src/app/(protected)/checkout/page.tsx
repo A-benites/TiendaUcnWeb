@@ -150,9 +150,7 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="font-semibold">Nombre:</p>
-                  <p>
-                    {user?.firstName} {user?.lastName}
-                  </p>
+                  <p>{user?.name || "Usuario"}</p>
                 </div>
                 <div>
                   <p className="font-semibold">Email:</p>

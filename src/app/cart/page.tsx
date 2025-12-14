@@ -1,40 +1,100 @@
 "use client";
 
 import { useState } from "react";
-import { useCartStore } from "@/stores/cart.store";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useCartStore } from "@/stores/cart.store";
+import {
+  useUpdateQuantityMutation,
+  useRemoveItemMutation,
+  useClearCartMutation,
+} from "@/hooks/useCart";
+import { CartItemRow, RemoveItemDialog, ClearCartDialog } from "@/components/cart";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, AlertTriangle } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ShoppingBag, ArrowLeft, Loader2, ShieldAlert, LogIn, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, clearCart, getTotalPrice } = useCartStore();
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const { items, getTotalPrice } = useCartStore();
+
+  // Estado para los modales
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
 
-  const totalPrice = getTotalPrice();
+  // Estados de carga para operaciones individuales
+  const [updatingItemId, setUpdatingItemId] = useState<number | null>(null);
 
-  const handleRemoveItem = () => {
-    if (itemToDelete !== null) {
-      removeItem(itemToDelete);
-      setItemToDelete(null);
+  // Mutations de React Query
+  const updateQuantityMutation = useUpdateQuantityMutation();
+  const removeItemMutation = useRemoveItemMutation();
+  const clearCartMutation = useClearCartMutation();
+
+  // Verificar si es administrador
+  const isAdmin =
+    session?.user?.role?.toLowerCase() === "admin" ||
+    session?.user?.role?.toLowerCase() === "administrador";
+
+  const isAuthenticated = status === "authenticated";
+  const isLoadingAuth = status === "loading";
+
+  const totalPrice = getTotalPrice();
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Obtener el nombre del producto a eliminar para el modal
+  const itemToDeleteName = itemToDelete
+    ? items.find((item) => item.id === itemToDelete)?.title
+    : undefined;
+
+  const handleUpdateQuantity = async (productId: number, quantity: number) => {
+    setUpdatingItemId(productId);
+    try {
+      await updateQuantityMutation.mutateAsync({ productId, quantity });
+    } finally {
+      setUpdatingItemId(null);
     }
   };
 
-  const handleClearCart = () => {
-    clearCart();
-    setIsClearModalOpen(false);
+  const handleRemoveItem = async () => {
+    if (itemToDelete !== null) {
+      try {
+        await removeItemMutation.mutateAsync(itemToDelete);
+        setItemToDelete(null);
+      } catch {
+        // El error ya se maneja en el hook
+      }
+    }
   };
 
+  const handleClearCart = async () => {
+    try {
+      await clearCartMutation.mutateAsync();
+      setIsClearModalOpen(false);
+    } catch {
+      // El error ya se maneja en el hook
+    }
+  };
+
+  const handleCheckout = () => {
+    if (!isAuthenticated) {
+      toast.error("Debes iniciar sesión para realizar una compra");
+      router.push("/login?callbackUrl=/checkout");
+      return;
+    }
+
+    if (isAdmin) {
+      toast.error("Los administradores no pueden realizar compras");
+      return;
+    }
+
+    router.push("/checkout");
+  };
+
+  // Carrito vacío
   if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-16">
@@ -76,76 +136,33 @@ export default function CartPage() {
         {/* Lista de productos */}
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
-            <Card key={item.id}>
-              <CardContent className="p-4">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  {/* Imagen del producto */}
-                  <div className="relative w-full sm:w-24 h-32 sm:h-24 shrink-0 rounded-md overflow-hidden bg-gray-100">
-                    <Image
-                      src={item.mainImageURL || "/placeholder.png"}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-
-                  {/* Información del producto */}
-                  <div className="flex-1 min-w-0">
-                    <Link href={`/products/${item.id}`}>
-                      <h3 className="font-semibold text-base sm:text-lg hover:underline line-clamp-2">
-                        {item.title}
-                      </h3>
-                    </Link>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {item.brandName} · {item.categoryName}
-                    </p>
-                    <p className="text-lg font-bold text-primary mt-2">{item.finalPrice}</p>
-                  </div>
-
-                  {/* Controles */}
-                  <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-between gap-2">
-                    <div className="flex items-center border rounded-md order-1 sm:order-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        disabled={item.quantity <= 1}
-                        className="h-8 w-8"
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-
-                      <div className="w-10 text-center font-medium text-sm">{item.quantity}</div>
-
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        disabled={item.quantity >= item.stock}
-                        className="h-8 w-8"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setItemToDelete(item.id)}
-                      className="text-destructive hover:text-destructive order-2 sm:order-1"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <CartItemRow
+              key={item.id}
+              item={item}
+              onUpdateQuantity={handleUpdateQuantity}
+              onRemove={(productId) => setItemToDelete(productId)}
+              isUpdating={updatingItemId === item.id}
+              isRemoving={removeItemMutation.isPending && itemToDelete === item.id}
+            />
           ))}
 
-          <Button variant="outline" onClick={() => setIsClearModalOpen(true)} className="w-full">
-            <Trash2 className="mr-2 h-4 w-4" />
-            Vaciar Carrito
+          <Button
+            variant="outline"
+            onClick={() => setIsClearModalOpen(true)}
+            className="w-full"
+            disabled={clearCartMutation.isPending}
+          >
+            {clearCartMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Vaciando...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Vaciar Carrito
+              </>
+            )}
           </Button>
         </div>
 
@@ -159,7 +176,7 @@ export default function CartPage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Productos ({items.length})</span>
-                  <span>{items.reduce((sum, item) => sum + item.quantity, 0)} unidades</span>
+                  <span>{totalItems} unidades</span>
                 </div>
               </div>
 
@@ -171,13 +188,56 @@ export default function CartPage() {
                   </span>
                 </div>
               </div>
+
+              {/* Alertas de restricciones */}
+              {!isLoadingAuth && !isAuthenticated && (
+                <Alert variant="default" className="border-amber-500 bg-amber-50 dark:bg-amber-950">
+                  <LogIn className="h-4 w-4 text-amber-600" />
+                  <AlertTitle className="text-amber-800 dark:text-amber-200">
+                    Inicia sesión
+                  </AlertTitle>
+                  <AlertDescription className="text-amber-700 dark:text-amber-300">
+                    Debes iniciar sesión para realizar una compra.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {isAuthenticated && isAdmin && (
+                <Alert variant="destructive">
+                  <ShieldAlert className="h-4 w-4" />
+                  <AlertTitle>Acceso restringido</AlertTitle>
+                  <AlertDescription>
+                    Los administradores no pueden realizar compras.
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
             <CardFooter className="flex flex-col gap-2">
-              <Link href="/checkout" className="w-full">
-                <Button className="w-full" size="lg">
-                  Proceder al Pago
-                </Button>
-              </Link>
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={handleCheckout}
+                disabled={isLoadingAuth || isAdmin}
+              >
+                {isLoadingAuth ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Verificando...
+                  </>
+                ) : !isAuthenticated ? (
+                  <>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Iniciar sesión para comprar
+                  </>
+                ) : isAdmin ? (
+                  <>
+                    <ShieldAlert className="mr-2 h-4 w-4" />
+                    No disponible para admins
+                  </>
+                ) : (
+                  "Proceder al Pago"
+                )}
+              </Button>
               <Link href="/products" className="w-full">
                 <Button variant="outline" className="w-full">
                   Continuar Comprando
@@ -189,50 +249,21 @@ export default function CartPage() {
       </div>
 
       {/* Modal Confirmación Eliminar Item */}
-      <Dialog open={itemToDelete !== null} onOpenChange={(open) => !open && setItemToDelete(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              Eliminar Producto
-            </DialogTitle>
-            <DialogDescription>
-              ¿Estás seguro de que deseas eliminar este producto del carrito?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setItemToDelete(null)}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={handleRemoveItem}>
-              Eliminar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <RemoveItemDialog
+        isOpen={itemToDelete !== null}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={handleRemoveItem}
+        isLoading={removeItemMutation.isPending}
+        productName={itemToDeleteName}
+      />
 
       {/* Modal Confirmación Vaciar Carrito */}
-      <Dialog open={isClearModalOpen} onOpenChange={setIsClearModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              Vaciar Carrito
-            </DialogTitle>
-            <DialogDescription>
-              ¿Estás seguro de que deseas vaciar todo el carrito? Esta acción no se puede deshacer.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsClearModalOpen(false)}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={handleClearCart}>
-              Vaciar Carrito
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ClearCartDialog
+        isOpen={isClearModalOpen}
+        onClose={() => setIsClearModalOpen(false)}
+        onConfirm={handleClearCart}
+        isLoading={clearCartMutation.isPending}
+      />
     </div>
   );
 }

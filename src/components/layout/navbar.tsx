@@ -183,7 +183,7 @@ export function Navbar() {
                           className="flex items-center gap-2 cursor-pointer text-primary focus:text-primary focus:bg-primary/10"
                         >
                           <LayoutDashboard className="h-4 w-4" />
-                          Panel Administrativo
+                          Panel Admin
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />

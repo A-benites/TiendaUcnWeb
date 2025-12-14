@@ -11,22 +11,22 @@ import { useAdminProductDetail, useAdminUpdateProduct } from "@/services/admin-p
 // Componentes UI
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage, 
-  FormDescription 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
@@ -35,14 +35,14 @@ import { ArrowLeft, Loader2, Save } from "lucide-react";
 const safeParse = (value: string | number | undefined | null): number => {
   if (value === undefined || value === null) return 0;
   if (typeof value === "number") return value;
-  const clean = value.toString().replace(/[^0-9]/g, ""); 
+  const clean = value.toString().replace(/[^0-9]/g, "");
   return parseInt(clean, 10) || 0;
 };
 
 // Fallback para Textarea
 const Textarea = (props: React.ComponentProps<"textarea">) => (
-  <textarea 
-    {...props} 
+  <textarea
+    {...props}
     className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
   />
 );
@@ -56,12 +56,10 @@ const productSchema = z.object({
   status: z.coerce.number(),
 });
 
-type ProductFormValues = z.infer<typeof productSchema>;
-
 export default function EditProductPage() {
   const params = useParams();
   const router = useRouter();
-  
+
   const rawId = params?.id;
   const productId = Number(Array.isArray(rawId) ? rawId[0] : rawId);
 
@@ -148,7 +146,7 @@ export default function EditProductPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              
+
               <div className="grid gap-6 md:grid-cols-2">
                 {/* Usamos formControl en todos los campos */}
                 <FormField
@@ -228,8 +226,8 @@ export default function EditProductPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Estado</FormLabel>
-                      <Select 
-                        onValueChange={(val) => field.onChange(Number(val))} 
+                      <Select
+                        onValueChange={(val) => field.onChange(Number(val))}
                         value={field.value?.toString()}
                       >
                         <FormControl>
