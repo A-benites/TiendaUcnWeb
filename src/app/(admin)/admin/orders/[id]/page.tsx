@@ -16,7 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Loader2, Package, User, Mail, Calendar, CreditCard, Truck } from "lucide-react";
 import { formatCurrency, formatDate, getOrderStatus } from "@/utils/format";
 import Image from "next/image";
-import { toast } from "sonner";
 
 export default function AdminOrderDetailPage() {
   const params = useParams();

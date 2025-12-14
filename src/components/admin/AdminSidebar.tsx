@@ -3,14 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { 
-  LayoutDashboard, 
-  Package, 
-  ShoppingCart, 
-  Bookmark, 
-  LogOut, 
-  Store 
-} from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Bookmark, LogOut, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
 
@@ -41,15 +34,15 @@ export const AdminSidebar = () => {
           {menuItems.map((item) => {
             // Verificamos si la ruta actual empieza con el href del item (para mantener activo en sub-rutas)
             const isActive = pathname.startsWith(item.href);
-            
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
-                  isActive 
-                    ? "bg-primary/10 text-primary font-semibold" 
+                  isActive
+                    ? "bg-primary/10 text-primary font-semibold"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
@@ -63,8 +56,8 @@ export const AdminSidebar = () => {
 
       {/* Footer del Sidebar */}
       <div className="border-t p-4">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className="w-full justify-start gap-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
           onClick={() => signOut({ callbackUrl: "/" })}
         >

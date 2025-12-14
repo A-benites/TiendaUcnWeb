@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ProductForAdminDTO, useToggleProductStatusMutation } from "@/services/admin-products";
-import { Edit, Power, PowerOff, Loader2 } from "lucide-react"; // Usamos Lucide icons consistente con el resto
+import { Edit, Power, PowerOff, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface ProductTableProps {
   products: ProductForAdminDTO[];
@@ -23,9 +24,8 @@ export const ProductTable = ({ products }: ProductTableProps) => {
   const toggleMutation = useToggleProductStatusMutation();
 
   const handleToggleStatus = (id: number, title: string) => {
-    // Optimistic UI o simplemente feedback visual
     toggleMutation.mutate(id, {
-        onSuccess: () => toast.success(`Estado de "${title}" actualizado`)
+      onSuccess: () => toast.success(`Estado de "${title}" actualizado`),
     });
   };
 
@@ -46,36 +46,39 @@ export const ProductTable = ({ products }: ProductTableProps) => {
           {products.map((product) => {
             const isMutating = toggleMutation.isPending && toggleMutation.variables === product.id;
 
-            const cn = (...classes: (string | undefined | false)[]) => {
-              return classes.filter(Boolean).join(" ");
-            };
-
             return (
               <TableRow key={product.id}>
-                <TableCell className="font-medium text-muted-foreground">
-                  #{product.id}
-                </TableCell>
+                <TableCell className="font-medium text-muted-foreground">#{product.id}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="relative h-10 w-10 overflow-hidden rounded-md border bg-muted">
+                    {/* OPTIMIZACIÓN DE IMAGEN AQUÍ */}
+                    <div className="relative h-10 w-10 overflow-hidden rounded-md border bg-muted flex-shrink-0">
                       <Image
                         src={product.mainImageURL || "/placeholder.png"}
                         alt={product.title}
                         fill
                         className="object-cover"
-                        unoptimized
+                        sizes="40px"
+                        unoptimized={!product.mainImageURL?.startsWith("http")}
                       />
                     </div>
                     <div className="flex flex-col">
-                      <span className="font-medium">{product.title}</span>
-                      <span className="text-xs text-muted-foreground">{product.brandName} · {product.categoryName}</span>
+                      <span className="font-medium line-clamp-1">{product.title}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {product.brandName} · {product.categoryName}
+                      </span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="font-semibold">{product.price}</span>
-                    <span className={cn("text-xs", product.stock < 10 ? "text-red-500" : "text-green-600")}>
+                    <span
+                      className={cn(
+                        "text-xs",
+                        product.stock < 10 ? "text-red-500" : "text-green-600"
+                      )}
+                    >
                       {product.stock} unids.
                     </span>
                   </div>
@@ -91,9 +94,9 @@ export const ProductTable = ({ products }: ProductTableProps) => {
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/admin/products/edit/${product.id}`}>
-                            <Edit className="h-4 w-4 text-blue-500" />
-                        </Link>
+                      <Link href={`/admin/products/edit/${product.id}`}>
+                        <Edit className="h-4 w-4 text-blue-500" />
+                      </Link>
                     </Button>
                     <Button
                       variant="ghost"

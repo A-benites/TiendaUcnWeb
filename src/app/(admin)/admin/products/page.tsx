@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useAdminProductsQuery, AdminProductSearchParams } from "@/services/admin-products";
 import { ProductTable } from "@/components/admin/ProductTable";
-import { Button } from "@/components/ui/button"; // Importar componente UI
-import { Input } from "@/components/ui/input";   // Importar input UI
-import { Search, Plus, Loader2 } from "lucide-react"; // Usar Lucide (consistente con tu proyecto)
-import Link from "next/link"; // Para navegar a crear producto
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, Plus, Loader2, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { TableSkeleton } from "@/components/ui/skeletons";
 
 export default function AdminProductsPage() {
   const [params, setParams] = useState<AdminProductSearchParams>({
@@ -16,7 +17,7 @@ export default function AdminProductsPage() {
   });
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data, isLoading, isError, isFetching } = useAdminProductsQuery(params);
+  const { data, isLoading, isError, isFetching, refetch } = useAdminProductsQuery(params);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,15 +30,23 @@ export default function AdminProductsPage() {
     }
   };
 
-  if (isLoading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
-  
-  if (isError) return (
-      <div className="p-10 text-center text-red-500">
-        Error al cargar productos. Verifica tu conexión.
+  if (isLoading)
+    return (
+      <div className="p-6">
+        <TableSkeleton rows={10} />
       </div>
     );
 
-  // Asegurar que data existe, si no, usar un objeto vacío seguro
+  if (isError)
+    return (
+      <div className="p-10 flex flex-col items-center gap-4 text-center">
+        <p className="text-red-500">Error al cargar productos. Verifica tu conexión.</p>
+        <Button onClick={() => refetch()} variant="outline" className="gap-2">
+          <RefreshCw className="h-4 w-4" /> Reintentar
+        </Button>
+      </div>
+    );
+
   const productList = data || { products: [], totalPages: 0, currentPage: 1, totalCount: 0 };
 
   return (
@@ -47,7 +56,6 @@ export default function AdminProductsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Productos</h1>
           <p className="text-muted-foreground">Gestiona el inventario de la tienda.</p>
         </div>
-        {/* BOTÓN ARREGLADO: Usa variantes de Shadcn */}
         <Link href="/admin/products/create">
           <Button>
             <Plus className="mr-2 h-4 w-4" /> Nuevo Producto
@@ -74,7 +82,6 @@ export default function AdminProductsPage() {
 
       <ProductTable products={productList.products} />
 
-      {/* Paginación */}
       {productList.totalPages > 1 && (
         <div className="flex justify-between items-center pt-4 border-t">
           <Button

@@ -12,10 +12,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Edit, Trash2, Plus, Loader2, AlertTriangle, Layers } from "lucide-react";
+import { Edit, Trash2, Plus, Loader2, AlertTriangle, Layers, RefreshCw } from "lucide-react";
+// Asegúrate de que la ruta coincida con donde creaste el archivo de skeletons
+import { TableSkeleton } from "@/components/ui/skeletons";
 
 export default function AdminCategoriesPage() {
-  const { items, isLoading, create, update, remove } = useAdminTaxonomy("categories");
+  // Desestructuramos isError y refetch del hook (Asegúrate de haber actualizado el servicio)
+  const { items, isLoading, isError, refetch, create, update, remove } =
+    useAdminTaxonomy("categories");
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<{ id: number; name: string } | null>(null);
@@ -49,12 +53,26 @@ export default function AdminCategoriesPage() {
     if (deletingId) remove.mutate(deletingId, { onSuccess: () => setDeletingId(null) });
   };
 
-  if (isLoading)
+  // 1. Loading State con Skeleton
+  if (isLoading) {
     return (
-      <div className="flex justify-center p-10">
-        <Loader2 className="animate-spin" />
+      <div className="p-6">
+        <TableSkeleton rows={5} />
       </div>
     );
+  }
+
+  // 2. Error State con Botón Reintentar
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center p-10 gap-4 text-red-500">
+        <p>Error al cargar las categorías.</p>
+        <Button variant="outline" onClick={() => refetch()}>
+          <RefreshCw className="h-4 w-4 mr-2" /> Reintentar
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -114,7 +132,7 @@ export default function AdminCategoriesPage() {
         </table>
       </div>
 
-      {/* Modales */}
+      {/* Modal Crear */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent>
           <DialogHeader>
@@ -125,11 +143,15 @@ export default function AdminCategoriesPage() {
             <Input value={formName} onChange={(e) => setFormName(e.target.value)} />
           </div>
           <DialogFooter>
-            <Button onClick={handleCreate}>Guardar</Button>
+            <Button onClick={handleCreate} disabled={create.isPending}>
+              {create.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Guardar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Modal Editar */}
       <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
         <DialogContent>
           <DialogHeader>
@@ -140,11 +162,15 @@ export default function AdminCategoriesPage() {
             <Input value={formName} onChange={(e) => setFormName(e.target.value)} />
           </div>
           <DialogFooter>
-            <Button onClick={handleUpdate}>Actualizar</Button>
+            <Button onClick={handleUpdate} disabled={update.isPending}>
+              {update.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Actualizar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Modal Eliminar */}
       <Dialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
         <DialogContent>
           <DialogHeader>
@@ -154,7 +180,11 @@ export default function AdminCategoriesPage() {
           </DialogHeader>
           <p>¿Seguro? No se podrá eliminar si tiene productos asociados.</p>
           <DialogFooter>
-            <Button variant="destructive" onClick={handleDelete}>
+            <Button variant="outline" onClick={() => setDeletingId(null)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={remove.isPending}>
+              {remove.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Eliminar
             </Button>
           </DialogFooter>

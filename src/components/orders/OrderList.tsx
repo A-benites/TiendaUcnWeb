@@ -3,20 +3,11 @@
 import { useState } from "react";
 import { useOrdersQuery } from "@/services/orders";
 import { OrderTable } from "./OrderTable";
-import { Search, ChevronLeft, ChevronRight, Loader2, RotateCcw } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Loader2, RotateCcw, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TableSkeleton } from "@/components/ui/skeletons"; // Importamos el Skeleton nuevo
 
-/**
- * <summary>
- * Container component responsible for managing the state, fetching data,
- * and displaying the user's paginated order history.
- * </summary>
- * <remarks>
- * Handles pagination, search filtering by code, and displays loading/error/data states.
- * </remarks>
- * <returns>A React component rendering the order list view.</returns>
- */
 export const OrderList = () => {
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -26,8 +17,7 @@ export const OrderList = () => {
 
   const filter = { page, pageSize, code: codeFilter };
 
-  // Utiliza el hook que incluye la solución de contingencia
-  const { data, isLoading, isError, isFetching } = useOrdersQuery(filter);
+  const { data, isLoading, isError, isFetching, refetch } = useOrdersQuery(filter);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,10 +28,7 @@ export const OrderList = () => {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="flex flex-col justify-center items-center h-48 bg-gray-50 dark:bg-muted/30 rounded-lg gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-lg text-muted-foreground">Cargando historial de pedidos...</p>
-        </div>
+        <TableSkeleton rows={5} />
       </div>
     );
   }
@@ -56,12 +43,15 @@ export const OrderList = () => {
           <p className="text-sm text-red-600 dark:text-red-500">
             Por favor verifica tu conexión o intenta nuevamente más tarde.
           </p>
+          <Button onClick={() => refetch()} variant="outline" className="gap-2 mt-2">
+            <RefreshCw className="h-4 w-4" />
+            Reintentar
+          </Button>
         </div>
       </div>
     );
   }
 
-  // Si la función getOrders maneja el 401/403, 'data' debería existir aquí (incluso si está vacío)
   if (!data) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -84,7 +74,6 @@ export const OrderList = () => {
           </p>
         </div>
 
-        {/* Search Form */}
         <form onSubmit={handleSearch} className="flex gap-3">
           <div className="relative flex-grow max-w-sm">
             <Input
@@ -108,12 +97,10 @@ export const OrderList = () => {
           </Button>
         </form>
 
-        {/* Order Table Display */}
         {orderList.orders.length > 0 ? (
           <>
             <OrderTable orders={orderList.orders} />
 
-            {/* Pagination Controls */}
             <div className="flex justify-between items-center pt-4">
               <Button
                 variant="outline"
