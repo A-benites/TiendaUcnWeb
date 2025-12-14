@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -12,7 +12,6 @@ import { AxiosError } from "axios";
 // Componentes UI
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { InputOTP } from "@/components/ui/input-otp";
 import {
   Card,
   CardContent,
@@ -38,18 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle2,
-  Loader2,
-  Mail,
-  RefreshCw,
-  User,
-  Shield,
-  Eye,
-  EyeOff,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, User, Eye, EyeOff } from "lucide-react";
 
 // ==================== VALIDACIÓN DE RUT ====================
 const validateRut = (rut: string): boolean => {
@@ -159,16 +147,11 @@ const registerSchema = z
   });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
-type RegisterStep = "form" | "verification" | "success";
 
 // ==================== COMPONENTE PRINCIPAL ====================
 export default function RegisterPage() {
   const router = useRouter();
-  const [step, setStep] = useState<RegisterStep>("form");
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
-  const [resendCooldown, setResendCooldown] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -188,15 +171,6 @@ export default function RegisterPage() {
     },
     mode: "onBlur",
   });
-
-  // Cooldown para reenvío de código
-  useEffect(() => {
-    if (resendCooldown > 0) {
-      const timer = setTimeout(() => setResendCooldown((prev) => prev - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-    return undefined;
-  }, [resendCooldown]);
 
   // Indicador de fortaleza de contraseña
   const password = form.watch("password");
@@ -241,10 +215,9 @@ export default function RegisterPage() {
         confirmPassword: values.confirmPassword,
       });
 
-      setEmail(values.email);
-      setStep("verification");
-      setResendCooldown(60);
-      toast.success("¡Código de verificación enviado a tu correo!");
+      toast.success("¡Cuenta creada! Verifica tu correo electrónico.");
+      // Redirigir a la página de verificación
+      router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       const message =
@@ -255,431 +228,261 @@ export default function RegisterPage() {
     }
   };
 
-  // Verificar código
-  const handleVerify = async () => {
-    if (verificationCode.length !== 6) {
-      toast.error("El código debe tener 6 dígitos");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await authService.verifyEmail({
-        email,
-        verificationCode,
-      });
-
-      setStep("success");
-      toast.success("¡Cuenta verificada exitosamente!");
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message: string }>;
-      const message = axiosError.response?.data?.message || "Código inválido o expirado";
-      toast.error(message);
-      setVerificationCode("");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Reenviar código
-  const handleResend = async () => {
-    if (resendCooldown > 0) return;
-
-    setIsLoading(true);
-    try {
-      await authService.resendVerificationCode(email);
-      setResendCooldown(60);
-      toast.success("Código reenviado exitosamente");
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message: string }>;
-      const message = axiosError.response?.data?.message || "Error al reenviar el código";
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Máscara email
-  const maskedEmail = email ? email.replace(/(.{2})(.*)(@.*)/, "$1***$3") : "";
-
   // ==================== RENDER ====================
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-black">
       <div className="w-full max-w-lg">
-        {/* Indicador de pasos */}
-        <div className="mb-6">
-          <div className="flex items-center justify-center gap-2">
-            {(["form", "verification", "success"] as const).map((s, i) => {
-              const stepIndex = ["form", "verification", "success"].indexOf(step);
-              const isCompleted = i < stepIndex;
-              const isCurrent = s === step;
-
-              return (
-                <div key={s} className="flex items-center">
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-all ${
-                      isCurrent
-                        ? "bg-primary text-primary-foreground"
-                        : isCompleted
-                          ? "bg-green-500 text-white"
-                          : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : i + 1}
-                  </div>
-                  {i < 2 && (
-                    <div
-                      className={`mx-2 h-0.5 w-8 transition-colors sm:w-12 ${
-                        isCompleted ? "bg-green-500" : "bg-muted"
-                      }`}
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-2 flex justify-center gap-4 text-xs text-muted-foreground sm:gap-8">
-            <span className="w-16 text-center">Datos</span>
-            <span className="w-16 text-center">Verificar</span>
-            <span className="w-16 text-center">Listo</span>
-          </div>
-        </div>
+        <Link
+          href="/login"
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4 transition-colors"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver al inicio de sesión
+        </Link>
 
         <Card>
-          {/* ==================== PASO 1: FORMULARIO ==================== */}
-          {step === "form" && (
-            <>
-              <CardHeader>
-                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                  <User className="h-6 w-6 text-primary" />
+          <CardHeader>
+            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+              <User className="h-6 w-6 text-primary" />
+            </div>
+            <CardTitle className="text-center text-2xl">Crear Cuenta</CardTitle>
+            <CardDescription className="text-center">
+              Completa tus datos para registrarte en Tienda UCN
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                {/* Nombre y Apellido */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nombre</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Juan" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Apellido</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Pérez" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <CardTitle className="text-center text-2xl">Crear Cuenta</CardTitle>
-                <CardDescription className="text-center">
-                  Completa tus datos para registrarte en Tienda UCN
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    {/* Nombre y Apellido */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name="firstName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nombre</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Juan" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="lastName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Apellido</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Pérez" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
 
-                    {/* Género y Fecha de nacimiento */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <FormField
-                        control={form.control}
-                        name="gender"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Género</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Seleccionar" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="Masculino">Masculino</SelectItem>
-                                <SelectItem value="Femenino">Femenino</SelectItem>
-                                <SelectItem value="Otro">Otro</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="birthDate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Fecha de nacimiento</FormLabel>
-                            <FormControl>
-                              <Input type="date" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* RUT */}
-                    <FormField
-                      control={form.control}
-                      name="rut"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>RUT</FormLabel>
+                {/* Género y Fecha de nacimiento */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="gender"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Género</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <Input
-                              placeholder="12.345.678-9"
-                              {...field}
-                              onChange={(e) => {
-                                const formatted = formatRut(e.target.value);
-                                field.onChange(formatted);
-                              }}
-                              maxLength={12}
-                            />
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Seleccionar" />
+                            </SelectTrigger>
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Email */}
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Correo electrónico</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="usuario@ejemplo.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Teléfono */}
-                    <FormField
-                      control={form.control}
-                      name="phoneNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Teléfono</FormLabel>
-                          <FormControl>
-                            <Input placeholder="+569xxxxxxxx" {...field} maxLength={12} />
-                          </FormControl>
-                          <FormDescription>Formato: +569xxxxxxxx</FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Contraseña */}
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Contraseña</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type={showPassword ? "text" : "password"}
-                                placeholder="••••••••"
-                                {...field}
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                              >
-                                {showPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </button>
-                            </div>
-                          </FormControl>
-                          {password && (
-                            <div className="mt-2 space-y-1">
-                              <div className="flex gap-1">
-                                {[...Array(5)].map((_, i) => (
-                                  <div
-                                    key={i}
-                                    className={`h-1.5 flex-1 rounded-full transition-colors ${
-                                      i < passwordStrength
-                                        ? strengthColors[passwordStrength - 1]
-                                        : "bg-muted"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <p className="text-xs text-muted-foreground">
-                                Fortaleza: {strengthLabels[passwordStrength - 1] || "Muy débil"}
-                              </p>
-                            </div>
-                          )}
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Confirmar contraseña */}
-                    <FormField
-                      control={form.control}
-                      name="confirmPassword"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Confirmar contraseña</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type={showConfirmPassword ? "text" : "password"}
-                                placeholder="••••••••"
-                                {...field}
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                              >
-                                {showConfirmPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Registrando...
-                        </>
-                      ) : (
-                        <>
-                          Crear cuenta
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </>
-                      )}
-                    </Button>
-                  </form>
-                </Form>
-              </CardContent>
-              <CardFooter className="justify-center">
-                <p className="text-sm text-muted-foreground">
-                  ¿Ya tienes cuenta?{" "}
-                  <Link href="/login" className="text-primary hover:underline">
-                    Inicia Sesión
-                  </Link>
-                </p>
-              </CardFooter>
-            </>
-          )}
-
-          {/* ==================== PASO 2: VERIFICACIÓN ==================== */}
-          {step === "verification" && (
-            <>
-              <CardHeader>
-                <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                  <Mail className="h-6 w-6 text-primary" />
+                          <SelectContent>
+                            <SelectItem value="Masculino">Masculino</SelectItem>
+                            <SelectItem value="Femenino">Femenino</SelectItem>
+                            <SelectItem value="Otro">Otro</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="birthDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Fecha de nacimiento</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <CardTitle className="text-center text-2xl">Verifica tu correo</CardTitle>
-                <CardDescription className="text-center">
-                  Enviamos un código de 6 dígitos a{" "}
-                  <span className="font-medium text-foreground">{maskedEmail}</span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <InputOTP
-                  value={verificationCode}
-                  onChange={setVerificationCode}
-                  disabled={isLoading}
+
+                {/* RUT */}
+                <FormField
+                  control={form.control}
+                  name="rut"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>RUT</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="12.345.678-9"
+                          {...field}
+                          onChange={(e) => {
+                            const formatted = formatRut(e.target.value);
+                            field.onChange(formatted);
+                          }}
+                          maxLength={12}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
 
-                <Button
-                  onClick={handleVerify}
-                  className="w-full"
-                  disabled={isLoading || verificationCode.length !== 6}
-                >
+                {/* Email */}
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Correo electrónico</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="usuario@ejemplo.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Teléfono */}
+                <FormField
+                  control={form.control}
+                  name="phoneNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Teléfono</FormLabel>
+                      <FormControl>
+                        <Input placeholder="+569xxxxxxxx" {...field} maxLength={12} />
+                      </FormControl>
+                      <FormDescription>Formato: +569xxxxxxxx</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Contraseña */}
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contraseña</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            {...field}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
+                      </FormControl>
+                      {password && (
+                        <div className="mt-2 space-y-1">
+                          <div className="flex gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <div
+                                key={i}
+                                className={`h-1.5 flex-1 rounded-full transition-colors ${
+                                  i < passwordStrength
+                                    ? strengthColors[passwordStrength - 1]
+                                    : "bg-muted"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Fortaleza: {strengthLabels[passwordStrength - 1] || "Muy débil"}
+                          </p>
+                        </div>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Confirmar contraseña */}
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirmar contraseña</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            {...field}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Verificando...
+                      Registrando...
                     </>
                   ) : (
                     <>
-                      Verificar código
-                      <Shield className="ml-2 h-4 w-4" />
+                      Crear cuenta
+                      <ArrowRight className="ml-2 h-4 w-4" />
                     </>
                   )}
                 </Button>
-
-                <div className="flex flex-col gap-2">
-                  <Button
-                    variant="ghost"
-                    onClick={handleResend}
-                    disabled={resendCooldown > 0 || isLoading}
-                    className="w-full"
-                  >
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    {resendCooldown > 0 ? `Reenviar en ${resendCooldown}s` : "Reenviar código"}
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setStep("form");
-                      setVerificationCode("");
-                    }}
-                    disabled={isLoading}
-                    className="w-full"
-                  >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Volver al registro
-                  </Button>
-                </div>
-              </CardContent>
-            </>
-          )}
-
-          {/* ==================== PASO 3: ÉXITO ==================== */}
-          {step === "success" && (
-            <>
-              <CardHeader>
-                <div className="mx-auto mb-2 flex h-16 w-16 animate-bounce items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                  <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
-                </div>
-                <CardTitle className="text-center text-2xl">¡Cuenta creada!</CardTitle>
-                <CardDescription className="text-center">
-                  Tu cuenta ha sido verificada exitosamente. Ya puedes iniciar sesión.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button onClick={() => router.push("/login")} className="w-full">
-                  Ir a iniciar sesión
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardContent>
-            </>
-          )}
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="justify-center">
+            <p className="text-sm text-muted-foreground">
+              ¿Ya tienes cuenta?{" "}
+              <Link href="/login" className="text-primary hover:underline">
+                Inicia Sesión
+              </Link>
+            </p>
+          </CardFooter>
         </Card>
       </div>
     </div>

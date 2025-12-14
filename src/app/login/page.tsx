@@ -4,11 +4,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { authService } from "@/services/auth.service";
-import { useAuthStore } from "@/stores/auth.store";
-import { AxiosError } from "axios";
+import { signIn } from "next-auth/react";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Componentes UI
 import { Button } from "@/components/ui/button";
@@ -30,7 +29,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, LogIn, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Loader2, LogIn, Mail, Lock, ArrowLeft } from "lucide-react";
 
 // Esquema de validación con Zod
 const loginSchema = z.object({
@@ -42,9 +41,12 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
+  const callbackUrl = searchParams.get("callbackUrl") || "/products";
+
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const setAuth = useAuthStore((state) => state.setAuth);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -57,24 +59,27 @@ export default function LoginPage() {
   const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
     try {
-      // 1. Obtener el token
-      const loginResponse = await authService.login(values.email, values.password);
-      const token = loginResponse.data;
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: values.email,
+        password: values.password,
+      });
 
-      // 2. Obtener el perfil del usuario
-      const profileResponse = await authService.getProfile(token);
-      const user = profileResponse.data;
+      if (result?.error) {
+        toast.error("Credenciales inválidas. Por favor intenta nuevamente.");
+      } else {
+        // Clear any cached user-specific data from previous session
+        queryClient.removeQueries({ queryKey: ["userOrders"] });
+        queryClient.removeQueries({ queryKey: ["orderDetail"] });
+        queryClient.removeQueries({ queryKey: ["profile"] });
 
-      // 3. Guardar en el store
-      setAuth(token, user);
-
-      toast.success(`¡Bienvenido, ${user.firstName}!`);
-      router.push("/products");
+        toast.success("¡Bienvenido!");
+        router.push(callbackUrl);
+        router.refresh(); // Refresh to update server components/session
+      }
     } catch (error) {
-      const axiosError = error as AxiosError<{ message: string }>;
-      const message =
-        axiosError.response?.data?.message || "Credenciales inválidas o error en el servidor";
-      toast.error(message);
+      toast.error("Ocurrió un error inesperado.");
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +87,16 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 dark:from-zinc-950 dark:to-black">
-      <Card className="w-full max-w-md shadow-xl">
+      <div className="w-full max-w-md">
+        <Link
+          href="/"
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4 transition-colors"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Volver a la tienda
+        </Link>
+
+        <Card className="w-full shadow-xl">
         <CardHeader className="space-y-4">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
             <LogIn className="h-7 w-7 text-primary" />
@@ -193,6 +207,7 @@ export default function LoginPage() {
           </Link>
         </CardFooter>
       </Card>
+      </div>
     </div>
   );
 }
