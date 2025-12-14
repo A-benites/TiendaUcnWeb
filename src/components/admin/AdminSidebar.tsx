@@ -1,78 +1,76 @@
-import Link from "next/link";
-import { LayoutDashboard, Package, ShoppingCart, Tags, Bookmark, LogOut } from "lucide-react";
+"use client";
 
-/**
- * <summary>
- * Component representing the fixed navigation sidebar for the administration panel.
- * </summary>
- * <returns>A React component rendering the navigation menu.</returns>
- */
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { 
+  LayoutDashboard, 
+  Package, 
+  ShoppingCart, 
+  Bookmark, 
+  LogOut, 
+  Store 
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { signOut } from "next-auth/react";
+
+// Definimos los items del menú (Ya NO está "Categorías")
+const menuItems = [
+  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/products", label: "Productos", icon: Package },
+  { href: "/admin/brands", label: "Marcas", icon: Bookmark },
+  { href: "/admin/orders", label: "Pedidos", icon: ShoppingCart },
+];
+
 export const AdminSidebar = () => {
+  const pathname = usePathname();
+
   return (
-    <div className="w-64 bg-gray-900 text-white flex flex-col h-full">
-      <div className="p-6 text-2xl font-bold border-b border-gray-800 flex items-center gap-2">
-        <span className="text-blue-500">Admin</span>Panel
+    <div className="flex h-full w-64 flex-col border-r bg-card text-card-foreground">
+      {/* Header del Sidebar */}
+      <div className="flex h-16 items-center border-b px-6">
+        <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary">
+          <Store className="h-6 w-6" />
+          <span>AdminPanel</span>
+        </Link>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        <Link
-          href="/admin/dashboard"
-          className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors text-gray-300 hover:text-white"
+      {/* Navegación */}
+      <div className="flex-1 overflow-y-auto py-4">
+        <nav className="grid items-start px-4 text-sm font-medium gap-1">
+          {menuItems.map((item) => {
+            // Verificamos si la ruta actual empieza con el href del item (para mantener activo en sub-rutas)
+            const isActive = pathname.startsWith(item.href);
+            
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
+                  isActive 
+                    ? "bg-primary/10 text-primary font-semibold" 
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Footer del Sidebar */}
+      <div className="border-t p-4">
+        <Button 
+          variant="ghost" 
+          className="w-full justify-start gap-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+          onClick={() => signOut({ callbackUrl: "/" })}
         >
-          <LayoutDashboard className="mr-3 h-5 w-5" />
-          Dashboard
-        </Link>
-
-        <div className="pt-4 pb-2">
-          <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            Catálogo
-          </p>
-        </div>
-
-        <Link
-          href="/admin/products"
-          className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors text-gray-300 hover:text-white"
-        >
-          <Package className="mr-3 h-5 w-5" />
-          Productos
-        </Link>
-
-        <Link
-          href="/admin/categories"
-          className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors text-gray-300 hover:text-white"
-        >
-          <Tags className="mr-3 h-5 w-5" />
-          Categorías
-        </Link>
-
-        <Link
-          href="/admin/brands"
-          className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors text-gray-300 hover:text-white"
-        >
-          <Bookmark className="mr-3 h-5 w-5" />
-          Marcas
-        </Link>
-
-        <div className="pt-4 pb-2">
-          <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            Ventas
-          </p>
-        </div>
-
-        <Link
-          href="/admin/orders"
-          className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors text-gray-300 hover:text-white"
-        >
-          <ShoppingCart className="mr-3 h-5 w-5" />
-          Pedidos
-        </Link>
-      </nav>
-
-      <div className="p-4 border-t border-gray-800">
-        <button className="flex items-center p-3 w-full rounded-lg hover:bg-red-900/50 text-red-400 hover:text-red-300 transition-colors">
-          <LogOut className="mr-3 h-5 w-5" />
+          <LogOut className="h-4 w-4" />
           Cerrar Sesión
-        </button>
+        </Button>
       </div>
     </div>
   );
