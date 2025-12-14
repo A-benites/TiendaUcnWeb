@@ -35,7 +35,6 @@ export const AdminSidebar = ({ onNavigate }: AdminSidebarProps) => {
 
   return (
     <div className="flex h-full w-full flex-col border-r bg-card text-card-foreground">
-      {/* Header del Sidebar */}
       <div className="flex h-16 items-center border-b px-6">
         <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary" onClick={handleClick}>
           <Store className="h-6 w-6" />
@@ -43,12 +42,10 @@ export const AdminSidebar = ({ onNavigate }: AdminSidebarProps) => {
         </Link>
       </div>
 
-      {/* Navegacion */}
       <div className="flex-1 overflow-y-auto py-4">
         <nav className="grid items-start px-4 text-sm font-medium gap-1">
           {menuItems.map((item) => {
             const isActive = pathname.startsWith(item.href);
-            
             return (
               <Link
                 key={item.href}
@@ -69,13 +66,8 @@ export const AdminSidebar = ({ onNavigate }: AdminSidebarProps) => {
         </nav>
       </div>
 
-      {/* Footer del Sidebar */}
       <div className="border-t p-4 space-y-2">
-        <Button 
-          variant="ghost" 
-          className="w-full justify-start gap-2"
-          asChild
-        >
+        <Button variant="ghost" className="w-full justify-start gap-2" asChild>
           <Link href="/" onClick={handleClick}>
             <Home className="h-4 w-4" />
             Ir a la Tienda
