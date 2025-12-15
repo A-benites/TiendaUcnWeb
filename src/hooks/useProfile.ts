@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userService } from "@/services/user.service";
 import { UpdateProfileData, ChangePasswordData, VerifyEmailChangeData } from "@/models/user.types";
-import { useAuthStore } from "@/stores/auth.store";
+import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 
@@ -18,7 +18,8 @@ export const profileKeys = {
  * Hook to fetch the user's profile
  */
 export function useProfile() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
 
   return useQuery({
     queryKey: profileKeys.detail(),
@@ -57,15 +58,12 @@ export function useUpdateProfile() {
  */
 export function useVerifyEmailChange() {
   const queryClient = useQueryClient();
-  const updateUser = useAuthStore((state) => state.updateUser);
 
   return useMutation({
     mutationFn: (data: VerifyEmailChangeData) => userService.verifyEmailChange(data),
-    onSuccess: (response, variables) => {
+    onSuccess: (response) => {
       // Invalidate and refetch profile
       queryClient.invalidateQueries({ queryKey: profileKeys.detail() });
-      // Update the auth store with the new email
-      updateUser({ email: variables.newEmail });
       toast.success(response.message || "Email changed successfully");
     },
     onError: (error: AxiosError<ApiError>) => {

@@ -31,9 +31,9 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h1>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, index) => (
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -48,8 +48,8 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
+        <Card className="lg:col-span-4">
           <CardHeader>
             <CardTitle>Resumen de Ventas</CardTitle>
           </CardHeader>
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
-        <Card className="col-span-3">
+        <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle>Ventas Recientes</CardTitle>
           </CardHeader>
@@ -67,18 +67,18 @@ export default function AdminDashboard() {
             <div className="space-y-8">
               {/* Dummy recent sales */}
               <div className="flex items-center">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium leading-none">Juan Pérez</p>
-                  <p className="text-sm text-muted-foreground">juan@email.com</p>
+                <div className="space-y-1 min-w-0 flex-1">
+                  <p className="text-sm font-medium leading-none truncate">Juan Pérez</p>
+                  <p className="text-sm text-muted-foreground truncate">juan@email.com</p>
                 </div>
-                <div className="ml-auto font-medium">+$150.000</div>
+                <div className="ml-auto font-medium flex-shrink-0">+$150.000</div>
               </div>
               <div className="flex items-center">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium leading-none">María González</p>
-                  <p className="text-sm text-muted-foreground">maria@email.com</p>
+                <div className="space-y-1 min-w-0 flex-1">
+                  <p className="text-sm font-medium leading-none truncate">María González</p>
+                  <p className="text-sm text-muted-foreground truncate">maria@email.com</p>
                 </div>
-                <div className="ml-auto font-medium">+$45.990</div>
+                <div className="ml-auto font-medium flex-shrink-0">+$45.990</div>
               </div>
             </div>
           </CardContent>

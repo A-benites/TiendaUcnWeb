@@ -11,7 +11,7 @@ import { toast } from "sonner";
 // MAPEO: Texto Frontend -> Número Backend (Enum C#)
 const statusToEnum: Record<string, number> = {
   Pending: 0,
-  Paid: 1,
+  Processing: 1, // Changed from Paid to Processing to match backend
   Shipped: 2,
   Delivered: 3,
   Cancelled: 4,
@@ -96,6 +96,33 @@ export function useUpdateOrderStatus() {
       if (backendDetails) {
         if (backendDetails.includes("Cancelled order")) {
           toast.error("No se puede editar un pedido Cancelado (Estado final).");
+        } else if (
+          backendDetails.toLowerCase().includes("invalid transition") ||
+          backendDetails.toLowerCase().includes("cannot change from")
+        ) {
+          // Extraer los estados del mensaje para mostrarlo más claro y traducirlos
+          const match = backendDetails.match(/cannot change from (\w+) to (\w+)/i);
+          const estadosES: Record<string, string> = {
+            Pending: "Pendiente",
+            Processing: "Procesando",
+            Shipped: "Enviado",
+            Delivered: "Entregado",
+            Cancelled: "Cancelado",
+          };
+          if (match) {
+            const from = estadosES[match[1]] || match[1];
+            const to = estadosES[match[2]] || match[2];
+            toast.error(`No puedes cambiar el estado de '${from}' a '${to}' directamente. Debes seguir la secuencia lógica del pedido.`);
+          } else {
+            toast.error("Transición de estado inválida. Debes seguir la secuencia lógica del pedido.");
+          }
+        } else if (
+          backendDetails.toLowerCase().includes("secuencia") ||
+          backendDetails.toLowerCase().includes("sequence") ||
+          backendDetails.toLowerCase().includes("must follow") ||
+          backendDetails.toLowerCase().includes("debe seguir")
+        ) {
+          toast.error("No puedes saltar estados. Debes seguir la secuencia lógica del pedido.");
         } else {
           toast.error(`Error: ${backendDetails}`);
         }

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useCartStore } from "@/stores/cart.store";
 import { cartService } from "@/services/cart.service";
 import { createOrder } from "@/services/orders";
-import { useAuthStore } from "@/stores/auth.store";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -25,7 +25,8 @@ export default function CheckoutPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { items, getTotalPrice, clearCart } = useCartStore();
-  const { user } = useAuthStore();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,6 +73,7 @@ export default function CheckoutPage() {
       // 4. Invalidate product queries to update stock (both list and individual products)
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["product"] });
+      queryClient.invalidateQueries({ queryKey: ["userOrders"] }); // Update order history
 
       toast.success("¡Pedido realizado con éxito!");
       router.push("/checkout/success");
@@ -123,7 +125,6 @@ export default function CheckoutPage() {
                       alt={item.title}
                       fill
                       className="object-cover"
-                      unoptimized
                     />
                   </div>
                   <div className="flex-1">
@@ -149,9 +150,7 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="font-semibold">Nombre:</p>
-                  <p>
-                    {user?.firstName} {user?.lastName}
-                  </p>
+                  <p>{user?.name || "Usuario"}</p>
                 </div>
                 <div>
                   <p className="font-semibold">Email:</p>

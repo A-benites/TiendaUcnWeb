@@ -1,18 +1,15 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
-import { useState } from "react";
 import { useProduct } from "@/hooks/useProducts";
 import { AddToCartControl } from "@/components/products/AddToCartControl";
+import { ProductGallery } from "@/components/products/ProductGallery";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 export default function ProductDetailPage() {
   const router = useRouter();
-  // Estado para manejar errores de carga de imagen
-  const [imgError, setImgError] = useState(false);
 
   // Obtener el ID de la URL
   const { id } = useParams();
@@ -26,12 +23,13 @@ export default function ProductDetailPage() {
   if (isError) return <div className="p-6 text-red-500">Error al cargar: {String(error)}</div>;
   if (!product) return <div className="p-6">Producto no encontrado</div>;
 
-  // Helper para obtener la imagen principal segura
-  // Prioriza mainImageURL, luego el primer elemento de imagesURL, finalmente placeholder
-  const mainImage =
-    product.mainImageURL ||
-    (product.imagesURL && product.imagesURL.length > 0 ? product.imagesURL[0] : null) ||
-    "/placeholder.png";
+  // Construir array de imágenes para la galería
+  const images =
+    product.imagesURL && product.imagesURL.length > 0
+      ? product.imagesURL
+      : product.mainImageURL
+        ? [product.mainImageURL]
+        : [];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -45,47 +43,8 @@ export default function ProductDetailPage() {
       </Button>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* SECCIÓN IZQUIERDA: Galería de Imágenes */}
-        <div className="space-y-4">
-          {/* Imagen Principal */}
-          <div className="relative aspect-square overflow-hidden rounded-lg border bg-gray-100 dark:bg-gray-800">
-            {!imgError ? (
-              <Image
-                src={mainImage}
-                alt={product.title}
-                fill
-                className="object-cover"
-                priority
-                unoptimized
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-400">
-                <span>Sin imagen disponible</span>
-              </div>
-            )}
-          </div>
-
-          {/* Miniaturas (si hay más de una imagen) */}
-          {product.imagesURL && product.imagesURL.length > 1 && (
-            <div className="grid grid-cols-4 gap-2">
-              {product.imagesURL.map((img, index) => (
-                <div
-                  key={index}
-                  className="relative aspect-square rounded-md overflow-hidden border cursor-pointer hover:opacity-80 transition"
-                >
-                  <Image
-                    src={img}
-                    alt={`Vista ${index + 1}`}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* SECCIÓN IZQUIERDA: Galería de Imágenes (Carrusel) */}
+        <ProductGallery images={images} title={product.title} />
 
         {/* SECCIÓN DERECHA: Información y Compra */}
         <div className="flex flex-col gap-6">

@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useAdminOrderDetail, useUpdateOrderStatus } from "@/services/admin-orders";
+import { OrderDetailSkeleton } from "@/components/admin/skeletons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -13,10 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Loader2, Package, User, Mail, Calendar, CreditCard, Truck } from "lucide-react";
+import { ArrowLeft, Package, User, Mail, Calendar, CreditCard, Truck } from "lucide-react";
 import { formatCurrency, formatDate, getOrderStatus } from "@/utils/format";
-import Image from "next/image";
-import { toast } from "sonner";
+
 
 export default function AdminOrderDetailPage() {
   const params = useParams();
@@ -31,11 +31,7 @@ export default function AdminOrderDetailPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center p-20">
-        <Loader2 className="animate-spin h-10 w-10 text-primary" />
-      </div>
-    );
+    return <OrderDetailSkeleton />;
   }
 
   if (!order) {
@@ -94,7 +90,7 @@ export default function AdminOrderDetailPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Pending">Pendiente</SelectItem>
-                  <SelectItem value="Paid">Pagado</SelectItem>
+                  <SelectItem value="Processing">Procesando (Pagado)</SelectItem>
                   <SelectItem value="Shipped">Enviado</SelectItem>
                   <SelectItem value="Delivered">Entregado</SelectItem>
                   <SelectItem value="Cancelled">Cancelado</SelectItem>
@@ -127,12 +123,10 @@ export default function AdminOrderDetailPage() {
                       className="flex gap-4 p-6 hover:bg-muted/5 transition-colors"
                     >
                       <div className="relative h-20 w-20 bg-white rounded-lg border shadow-sm overflow-hidden shrink-0">
-                        <Image
+                        <img
                           src={item.imageAtMoment || "/placeholder.png"}
                           alt={item.titleAtMoment}
-                          fill
-                          className="object-cover"
-                          unoptimized
+                          className="w-full h-full object-cover"
                         />
                       </div>
                       <div className="flex-1 flex flex-col justify-between">

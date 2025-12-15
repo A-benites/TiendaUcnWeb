@@ -9,7 +9,29 @@ type TaxonomyType = "categories" | "brands";
 // API Calls
 async function getAll(type: TaxonomyType): Promise<TaxonomyItem[]> {
   const { data } = await api.get(`/admin/${type}`);
-  return data.data || data;
+
+  // Handle the specific backend response format:
+  // { message: "...", data: { categories: [...] } } or { message: "...", data: { brands: [...] } }
+  if (data?.data) {
+    const innerData = data.data;
+    // Check for the specific property name (categories or brands)
+    if (Array.isArray(innerData[type])) {
+      return innerData[type];
+    }
+    // Fallback: check if innerData itself is an array
+    if (Array.isArray(innerData)) {
+      return innerData;
+    }
+  }
+
+  // Direct array response
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  // Fallback to empty array if response format is unexpected
+  console.warn(`Unexpected response format for ${type}:`, data);
+  return [];
 }
 
 async function create(type: TaxonomyType, name: string) {
@@ -26,7 +48,6 @@ async function remove(type: TaxonomyType, id: number) {
   await api.delete(`/admin/${type}/${id}`);
 }
 
-// Hook Reutilizable
 export function useAdminTaxonomy(type: TaxonomyType) {
   const queryClient = useQueryClient();
   const queryKey = [`admin-${type}`];
@@ -40,9 +61,9 @@ export function useAdminTaxonomy(type: TaxonomyType) {
     mutationFn: (name: string) => create(type, name),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast.success("Elemento creado exitosamente");
+      toast.success("Creado exitosamente");
     },
-    onError: () => toast.error("Error al crear. Verifica si ya existe."),
+    onError: () => toast.error("Error al crear"),
   });
 
   const updateMutation = useMutation({
@@ -62,7 +83,7 @@ export function useAdminTaxonomy(type: TaxonomyType) {
     },
     onError: (error: AxiosError) => {
       if (error.response?.status === 409) {
-        toast.error("No se puede eliminar: Está en uso por productos.");
+        toast.error("No se puede eliminar: Está en uso.");
       } else {
         toast.error("Error al eliminar.");
       }
@@ -72,6 +93,10 @@ export function useAdminTaxonomy(type: TaxonomyType) {
   return {
     items: query.data || [],
     isLoading: query.isLoading,
+    // ESTAS DOS LÍNEAS SON LAS QUE FALTABAN:
+    isError: query.isError,
+    refetch: query.refetch,
+    //
     create: createMutation,
     update: updateMutation,
     remove: deleteMutation,

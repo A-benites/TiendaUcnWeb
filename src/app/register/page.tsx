@@ -219,9 +219,17 @@ export default function RegisterPage() {
       // Redirigir a la página de verificación
       router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
     } catch (error) {
-      const axiosError = error as AxiosError<{ message: string }>;
+      // [CORRECCIÓN APLICADA AQUÍ]
+      // Se añade 'details' al tipo esperado para leer el mensaje específico del backend
+      const axiosError = error as AxiosError<{ message: string; details?: string }>;
+
+      // Priorizamos 'details' que contiene la razón exacta ("Email already exists", etc.)
+      // Si no existe, usamos 'message' (título del error), y finalmente un fallback.
       const message =
-        axiosError.response?.data?.message || "Error al crear la cuenta. Intenta nuevamente.";
+        axiosError.response?.data?.details ||
+        axiosError.response?.data?.message ||
+        "Error al crear la cuenta. Intenta nuevamente.";
+
       toast.error(message);
     } finally {
       setIsLoading(false);

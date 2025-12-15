@@ -37,6 +37,22 @@ export async function getProducts(params: GetProductsParams = {}): Promise<Produ
     queryParams.searchTerm = searchParts.join(" ");
   }
 
+  // Map category ID string to backend categoryId
+  if (category && category !== "all") {
+    const catId = parseInt(category, 10);
+    if (!isNaN(catId)) {
+      queryParams.categoryId = catId;
+    }
+  }
+
+  // Map brand ID string to backend brandId
+  if (brand && brand !== "all") {
+    const brandId = parseInt(brand, 10);
+    if (!isNaN(brandId)) {
+      queryParams.brandId = brandId;
+    }
+  }
+
   if (minPrice !== undefined && minPrice >= 0) {
     queryParams.minPrice = minPrice;
   }
@@ -52,24 +68,16 @@ export async function getProducts(params: GetProductsParams = {}): Promise<Produ
   const res = await api.get("/products", { params: queryParams });
   const backend = res.data?.data ?? res.data ?? {};
 
-  let products = backend.products ?? [];
-
-  // Client-side filtering for exact category/brand matches
-  // This provides precise filtering that searchTerm can't guarantee
-  if (category) {
-    products = products.filter((p: { categoryName: string }) => p.categoryName === category);
-  }
-
-  if (brand) {
-    products = products.filter((p: { brandName: string }) => p.brandName === brand);
-  }
+  const products = backend.products ?? [];
 
   return {
     products,
-    totalCount: products.length, // Adjusted count after client filtering
-    page: backend.page ?? page,
+    totalCount: backend.totalCount ?? products.length,
+    page: backend.pageNumber ?? backend.page ?? page,
     pageSize: backend.pageSize ?? pageSize,
-    totalPages: Math.ceil(products.length / pageSize) || 1,
+    totalPages:
+      backend.totalPages ??
+      (Math.ceil((backend.totalCount ?? products.length) / (backend.pageSize ?? pageSize)) || 1),
   };
 }
 
