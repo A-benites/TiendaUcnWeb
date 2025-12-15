@@ -22,11 +22,7 @@ export const DownloadPDFButton = ({
   className,
   showLabel = true 
 }: DownloadPDFButtonProps) => {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const isClient = typeof window !== "undefined";
 
   if (!isClient) {
     return (

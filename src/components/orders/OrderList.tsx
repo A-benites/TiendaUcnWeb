@@ -74,23 +74,31 @@ export const OrderList = () => {
   // Sync URL changes to state (for browser back/forward)
   useEffect(() => {
     const currentParamsString = searchParams.toString();
-
-    // Only update state if URL actually changed (not from our own updates)
     if (prevSearchParamsRef.current === currentParamsString) {
       return;
     }
-
     prevSearchParamsRef.current = currentParamsString;
-
     const urlSearch = searchParams.get("code") ?? "";
     const urlPage = parseInt(searchParams.get("page") ?? "1", 10);
     const urlPageSize = parseInt(searchParams.get("pageSize") ?? "10", 10);
-
-    setSearch(urlSearch);
-    setDebouncedSearch(urlSearch);
-    setCurrentPage(urlPage);
-    setPageSize(urlPageSize);
+    // Agrupa el estado en un solo objeto para evitar renders en cascada
+    setState({
+      search: urlSearch,
+      debouncedSearch: urlSearch,
+      currentPage: urlPage,
+      pageSize: urlPageSize,
+    });
   }, [searchParams]);
+
+  // Nuevo: estado agrupado
+  const [state, setState] = useState({
+    search: initialSearch,
+    debouncedSearch: initialSearch,
+    currentPage: initialPage,
+    pageSize: initialPageSize,
+  });
+
+  const { search, debouncedSearch, currentPage, pageSize } = state;
 
   const filter = {
     page: currentPage,

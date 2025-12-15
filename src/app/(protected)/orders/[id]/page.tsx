@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Package, Calendar, FileText } from "lucide-react";
-import Image from "next/image";
+
 import { DownloadPDFButton } from "@/components/orders/DownloadPDFButton";
 import { OrderDetailSkeleton } from "@/components/orders/OrderDetailSkeleton";
 

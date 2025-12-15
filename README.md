@@ -39,6 +39,52 @@ Make sure you have installed on your system:
 - **Linting:** [ESLint](https://eslint.org/)
 - **Git Hooks:** [Husky](https://typicode.github.io/husky/) + [Commitlint](https://commitlint.js.org/)
 
+## 🔒 Admin Route Protection & Auth
+
+This project uses [NextAuth.js](https://next-auth.js.org/) for authentication and a custom middleware to protect all `/admin` routes:
+
+- Only users with the `admin` role (from the backend JWT) can access `/admin` pages.
+- Non-admins are redirected to the homepage.
+- The middleware uses `NEXTAUTH_SECRET` and expects the backend JWT to include a `role` claim.
+
+### Required .env variables
+
+```
+NEXT_PUBLIC_API_URL=your_api_url_here
+NEXTAUTH_SECRET=your_nextauth_secret_here
+NEXTAUTH_URL=http://localhost:3000
+```
+
+> **Note:** The value for `NEXTAUTH_SECRET` must match the backend JWT secret for correct token validation.
+
+### How it works
+
+The file `middleware.ts` at the project root intercepts all `/admin` requests and checks the user's session token:
+
+```ts
+import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
+
+export async function middleware(req: NextRequest) {
+	const { pathname } = req.nextUrl;
+	if (pathname.startsWith("/admin")) {
+		const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+		if (!token || token.user?.role !== "admin") {
+			const url = req.nextUrl.clone();
+			url.pathname = "/";
+			return NextResponse.redirect(url);
+		}
+	}
+	return NextResponse.next();
+}
+
+export const config = {
+	matcher: ["/admin/:path*"],
+};
+```
+
+If you need to change admin access logic, edit `middleware.ts`.
+
 ## 📦 Installation
 
 ### 1. Clone both repositories

@@ -22,7 +22,11 @@ export function AddToCartControl({ product }: AddToCartControlProps) {
 
   // Reset quantity to 1 when product changes or when added to cart
   useEffect(() => {
-    setQuantity(1);
+    // Solo actualiza si realmente cambió el producto o el stock en carrito
+    if (quantity !== 1) {
+      setQuantity(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product.id, inCartQty]);
 
   const handleIncrement = () => {
