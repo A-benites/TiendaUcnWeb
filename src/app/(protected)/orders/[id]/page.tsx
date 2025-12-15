@@ -2,12 +2,15 @@
 
 import { useOrderDetailQuery } from "@/services/orders";
 import { useParams, useRouter } from "next/navigation";
-import { formatCurrency, formatDate } from "@/utils/format";
+import { formatDate } from "@/utils/format";
+import { formatPrice } from "@/lib/utils"; // Import formatPrice from lib/utils
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Loader2, Download, Package, Calendar, FileText } from "lucide-react";
-import Image from "next/image";
+import { ArrowLeft, Package, Calendar, FileText } from "lucide-react";
+
+import { DownloadPDFButton } from "@/components/orders/DownloadPDFButton";
+import { OrderDetailSkeleton } from "@/components/orders/OrderDetailSkeleton";
 
 /**
  * <summary>
@@ -26,12 +29,7 @@ export default function OrderDetailPage() {
   const { data, isLoading, isError } = useOrderDetailQuery(orderId);
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col justify-center items-center h-[60vh] gap-4">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
-        <p className="text-lg text-muted-foreground">Cargando detalle del pedido...</p>
-      </div>
-    );
+    return <OrderDetailSkeleton />;
   }
 
   if (isError) {
@@ -73,11 +71,13 @@ export default function OrderDetailPage() {
         Volver al historial
       </Button>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">Pedido #{order.code}</h1>
-          <div className="flex items-center gap-2 text-muted-foreground mt-2">
-            <Calendar className="h-4 w-4" />
+          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+            Pedido #{order.code}
+          </h1>
+          <div className="flex items-center gap-2 text-muted-foreground mt-2 text-sm md:text-base">
+            <Calendar className="h-4 w-4 flex-shrink-0" />
             <p>
               Realizado el {order.createdAt ? formatDate(order.createdAt) : "Fecha no registrada"}
             </p>
@@ -99,29 +99,30 @@ export default function OrderDetailPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             {order.orderItems.map((item) => (
-              <div key={item.id} className="flex gap-4">
+              <div key={item.id} className="flex flex-col sm:flex-row gap-4">
                 {/* Product Image */}
-                <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border bg-muted">
-                  <Image
+                <div className="relative h-32 sm:h-24 w-full sm:w-24 flex-shrink-0 overflow-hidden rounded-md border bg-muted">
+                  <img
                     src={item.imageAtMoment || "/placeholder.png"}
                     alt={item.titleAtMoment}
-                    fill
-                    className="object-cover"
-                    unoptimized
+                    className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="flex flex-1 flex-col justify-between">
+                <div className="flex flex-1 flex-col justify-between gap-2">
                   <div>
-                    <h3 className="font-medium text-lg line-clamp-1">{item.titleAtMoment}</h3>
-                    <div className="mt-1 flex text-sm text-muted-foreground">
-                      <p className="border-r pr-2 mr-2">
+                    <h3 className="font-medium text-base sm:text-lg line-clamp-2">
+                      {item.titleAtMoment}
+                    </h3>
+                    <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                      <p>
                         Cantidad:{" "}
                         <span className="font-medium text-foreground">{item.quantity}</span>
                       </p>
+                      <span className="hidden sm:inline">•</span>
                       <p>
                         Precio unitario:{" "}
                         <span className="font-medium text-foreground">
-                          {formatCurrency(item.priceAtMoment)}
+                          {formatPrice(item.priceAtMoment)}
                         </span>
                       </p>
                     </div>
@@ -135,7 +136,7 @@ export default function OrderDetailPage() {
                       <span></span>
                     )}
                     <p className="font-bold text-lg">
-                      {formatCurrency(
+                      {formatPrice(
                         item.priceAtMoment * item.quantity * (1 - item.discountAtMoment / 100)
                       )}
                     </p>
@@ -158,26 +159,19 @@ export default function OrderDetailPage() {
             <CardContent className="space-y-4">
               <div className="flex justify-between text-muted-foreground">
                 <span>Subtotal</span>
-                <span>{formatCurrency(order.subTotal)}</span>
+                <span>{formatPrice(order.subTotal)}</span>
               </div>
               {/* You can add shipping or tax rows here if needed */}
               <Separator />
               <div className="flex justify-between items-center pt-2">
                 <span className="font-bold text-lg">Total Pagado</span>
                 <span className="font-bold text-xl text-primary">
-                  {formatCurrency(order.total)}
+                  {formatPrice(order.total)}
                 </span>
               </div>
             </CardContent>
             <CardFooter>
-              <Button
-                variant="outline"
-                className="w-full gap-2"
-                onClick={() => alert("La función de descarga de PDF está pendiente.")}
-              >
-                <Download className="h-4 w-4" />
-                Descargar Comprobante
-              </Button>
+              <DownloadPDFButton order={order} className="w-full gap-2" />
             </CardFooter>
           </Card>
         </div>

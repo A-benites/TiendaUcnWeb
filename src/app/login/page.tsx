@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react"; // [MODIFICADO] Agregado getSession
 import { useQueryClient } from "@tanstack/react-query";
 
 // Componentes UI
@@ -43,7 +43,6 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const callbackUrl = searchParams.get("callbackUrl") || "/products";
 
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -68,14 +67,32 @@ function LoginForm() {
       if (result?.error) {
         toast.error("Credenciales inválidas. Por favor intenta nuevamente.");
       } else {
-        // Clear any cached user-specific data from previous session
+        // Limpiar caché de datos específicos del usuario anterior
         queryClient.removeQueries({ queryKey: ["userOrders"] });
         queryClient.removeQueries({ queryKey: ["orderDetail"] });
         queryClient.removeQueries({ queryKey: ["profile"] });
 
         toast.success("¡Bienvenido!");
-        router.push(callbackUrl);
-        router.refresh(); // Refresh to update server components/session
+
+        // [MODIFICADO] Lógica de redirección basada en Rol
+        // 1. Obtenemos la sesión actualizada para leer el rol
+        const session = await getSession();
+        const role = session?.user?.role?.toLowerCase();
+
+        // 2. Determinamos la URL de destino
+        const paramCallbackUrl = searchParams.get("callbackUrl");
+
+        // Por defecto vamos a /products
+        let targetUrl = paramCallbackUrl || "/products";
+
+        // Si NO hay un callbackUrl forzado (el usuario entró directo al login)
+        // y el usuario es ADMIN, lo redirigimos al panel administrativo
+        if (!paramCallbackUrl && (role === "administrador" || role === "admin")) {
+          targetUrl = "/admin/products";
+        }
+
+        router.push(targetUrl);
+        router.refresh(); // Actualizar componentes del servidor/sesión
       }
     } catch (error) {
       toast.error("Ocurrió un error inesperado.");

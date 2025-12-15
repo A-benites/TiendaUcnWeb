@@ -1,37 +1,143 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useOrdersQuery } from "@/services/orders";
 import { OrderTable } from "./OrderTable";
-import { Search, ChevronLeft, ChevronRight, Loader2, RotateCcw, RefreshCw } from "lucide-react";
+import { OrdersTableSkeleton } from "./OrdersTableSkeleton";
+import { Search, Loader2, RotateCcw, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TableSkeleton } from "@/components/ui/skeletons"; // Importamos el Skeleton nuevo
+import { Pagination } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const OrderList = () => {
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
-  const [searchCode, setSearchCode] = useState("");
-  const [codeFilter, setCodeFilter] = useState("");
+  // Read initial values from URL
+  const initialSearch = searchParams.get("code") ?? "";
+  const initialPage = parseInt(searchParams.get("page") ?? "1", 10);
+  const initialPageSize = parseInt(searchParams.get("pageSize") ?? "10", 10);
 
-  const filter = { page, pageSize, code: codeFilter };
+  // Local state
+  const [search, setSearch] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [pageSize, setPageSize] = useState(initialPageSize);
 
-  const { data, isLoading, isError, isFetching, refetch } = useOrdersQuery(filter);
+  // Update URL when params change
+  const updateURL = useCallback(
+    (params: { code?: string; page?: number; pageSize?: number }) => {
+      const newParams = new URLSearchParams();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    setCodeFilter(searchCode);
+      if (params.code) newParams.set("code", params.code);
+      if (params.page && params.page > 1) newParams.set("page", params.page.toString());
+      if (params.pageSize && params.pageSize !== 10)
+        newParams.set("pageSize", params.pageSize.toString());
+
+      const queryString = newParams.toString();
+      startTransition(() => {
+        router.push(queryString ? `/orders?${queryString}` : "/orders", { scroll: false });
+      });
+    },
+    [router]
+  );
+
+  // Debounce search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (search !== debouncedSearch) {
+        setDebouncedSearch(search);
+        setCurrentPage(1);
+        updateURL({
+          code: search || undefined,
+          page: 1,
+          pageSize,
+        });
+      }
+    }, 400);
+
+    return () => clearTimeout(handler);
+  }, [search, debouncedSearch, pageSize, updateURL]);
+
+  // Track previous searchParams to detect URL changes (browser back/forward)
+  const prevSearchParamsRef = useRef(searchParams.toString());
+
+  // Sync URL changes to state (for browser back/forward)
+  useEffect(() => {
+    const currentParamsString = searchParams.toString();
+    if (prevSearchParamsRef.current === currentParamsString) {
+      return;
+    }
+    prevSearchParamsRef.current = currentParamsString;
+    const urlSearch = searchParams.get("code") ?? "";
+    const urlPage = parseInt(searchParams.get("page") ?? "1", 10);
+    const urlPageSize = parseInt(searchParams.get("pageSize") ?? "10", 10);
+    // Agrupa el estado en un solo objeto para evitar renders en cascada
+    setState({
+      search: urlSearch,
+      debouncedSearch: urlSearch,
+      currentPage: urlPage,
+      pageSize: urlPageSize,
+    });
+  }, [searchParams]);
+
+  // Nuevo: estado agrupado
+  const [state, setState] = useState({
+    search: initialSearch,
+    debouncedSearch: initialSearch,
+    currentPage: initialPage,
+    pageSize: initialPageSize,
+  });
+
+  const { search, debouncedSearch, currentPage, pageSize } = state;
+
+  const filter = {
+    page: currentPage,
+    pageSize,
+    code: debouncedSearch || undefined,
   };
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <TableSkeleton rows={5} />
-      </div>
-    );
-  }
+  const { data, isLoading, isError, isFetching } = useOrdersQuery(filter);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    updateURL({
+      code: debouncedSearch || undefined,
+      page,
+      pageSize,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handlePageSizeChange = (value: string) => {
+    const newSize = parseInt(value, 10);
+    setPageSize(newSize);
+    setCurrentPage(1);
+    updateURL({
+      code: debouncedSearch || undefined,
+      page: 1,
+      pageSize: newSize,
+    });
+  };
+
+  const handleClearSearch = () => {
+    setSearch("");
+    setDebouncedSearch("");
+    setCurrentPage(1);
+    updateURL({
+      page: 1,
+      pageSize,
+    });
+  };
 
   if (isError) {
     return (
@@ -52,114 +158,107 @@ export const OrderList = () => {
     );
   }
 
-  if (!data) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="text-center py-20 bg-background rounded-lg border border-dashed">
-          <p className="text-xl text-muted-foreground">No hay datos disponibles para mostrar.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const orderList = data;
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Historial de Compras</h1>
-          <p className="text-muted-foreground">
-            Revisa el estado y detalles de tus pedidos anteriores.
-          </p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight">Historial de Compras</h1>
+            <p className="text-muted-foreground">
+              Revisa el estado y detalles de tus pedidos anteriores.
+            </p>
+          </div>
         </div>
 
-        <form onSubmit={handleSearch} className="flex gap-3">
-          <div className="relative flex-grow max-w-sm">
+        {/* Filters Bar */}
+        <div className="flex flex-col sm:flex-row gap-3 items-end sm:items-center justify-between">
+          <div className="relative w-full sm:max-w-sm">
             <Input
               type="text"
               placeholder="Buscar por código de pedido..."
-              value={searchCode}
-              onChange={(e) => setSearchCode(e.target.value)}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
             />
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          </div>
-          <Button type="submit" disabled={isFetching}>
-            {isFetching ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Buscando...
-              </>
-            ) : (
-              "Buscar"
+            {search && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleClearSearch}
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </Button>
             )}
-          </Button>
-        </form>
+          </div>
 
-        {orderList.orders.length > 0 ? (
-          <>
-            <OrderTable orders={orderList.orders} />
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground whitespace-nowrap">Mostrar:</span>
+            <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+              <SelectTrigger className="w-[80px]">
+                <SelectValue placeholder="10" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-            <div className="flex justify-between items-center pt-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                disabled={page === 1 || isFetching}
-                className="gap-2"
-              >
-                <ChevronLeft className="h-4 w-4" /> Anterior
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Página <span className="font-medium text-foreground">{orderList.currentPage}</span>{" "}
-                de <span className="font-medium text-foreground">{orderList.totalPages}</span>
-                <span className="ml-2 hidden sm:inline-block text-xs">
-                  ({orderList.totalCount} pedidos)
-                </span>
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((prev) => (prev < orderList.totalPages ? prev + 1 : prev))}
-                disabled={page === orderList.totalPages || isFetching}
-                className="gap-2"
-              >
-                Siguiente <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </>
-        ) : (
+        {/* Loading State for Transitions */}
+        {(isPending || (isFetching && !isLoading)) && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground animate-pulse">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Actualizando resultados...
+          </div>
+        )}
+
+        {/* Content */}
+        {isLoading ? (
+          <OrdersTableSkeleton />
+        ) : !data || data.orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 bg-background rounded-lg border border-dashed gap-4">
             <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center">
-              <Search className="h-8 w-8 text-muted-foreground" />
+              <Package className="h-8 w-8 text-muted-foreground" />
             </div>
             <div className="text-center space-y-1">
               <p className="text-xl font-semibold">
-                {codeFilter
-                  ? `No se encontraron pedidos con el código "${codeFilter}"`
+                {debouncedSearch
+                  ? `No se encontraron pedidos con el código "${debouncedSearch}"`
                   : "No tienes pedidos en tu historial"}
               </p>
               <p className="text-muted-foreground">
-                {codeFilter
+                {debouncedSearch
                   ? "Intenta con otro código o limpia el filtro."
                   : "Tus compras aparecerán aquí una vez que realices un pedido."}
               </p>
             </div>
-            {codeFilter && (
-              <Button
-                variant="link"
-                onClick={() => {
-                  setCodeFilter("");
-                  setSearchCode("");
-                }}
-                className="gap-2"
-              >
+            {debouncedSearch && (
+              <Button variant="link" onClick={handleClearSearch} className="gap-2">
                 <RotateCcw className="h-4 w-4" />
-                Ver todos los pedidos
+                Limpiar búsqueda
               </Button>
             )}
           </div>
+        ) : (
+          <>
+            <OrderTable orders={data.orders} />
+
+            {data.totalPages > 1 && (
+              <div className="mt-6 flex justify-center">
+                <Pagination
+                  currentPage={data.currentPage}
+                  totalPages={data.totalPages}
+                  onPageChange={handlePageChange}
+                  isLoading={isFetching}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

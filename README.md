@@ -1,235 +1,230 @@
+
 # 🛍️ Tienda UCN Web
 
-E-commerce web application developed with Next.js 16, React 19, TypeScript and TailwindCSS.
+Aplicación web de comercio electrónico desarrollada con Next.js 16, React 19, TypeScript y TailwindCSS.
 
-## 📋 Table of Contents
+## 📋 Tabla de Contenidos
 
-- [Prerequisites](#prerequisites)
-- [Technologies Used](#technologies-used)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Running the App](#running-the-app)
-- [Project Structure](#project-structure)
-- [Available Scripts](#available-scripts)
-- [Features](#features)
+- [Requisitos Previos](#-requisitos-previos)
+- [Tecnologías Utilizadas](#-tecnologías-utilizadas)
+- [Instalación](#-instalación)
+- [Configuración (Crítico)](#%EF%B8%8F-configuración-crítico)
+- [Ejecución](#-ejecución)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
+- [Características](#-características)
+- [Seguridad y Middleware](#-seguridad-y-middleware)
+- [Solución de Problemas](#-solución-de-problemas)
+- [Scripts Disponibles](#-scripts-disponibles)
+- [Equipo](#-equipo)
 
-## 🔧 Prerequisites
+## 🔧 Requisitos Previos
 
-Make sure you have installed on your system:
+Asegúrate de tener instalado en tu sistema:
 
-- **Node.js** >= 18.17.0 (latest LTS version recommended)
+- **Node.js** >= 18.17.0 (se recomienda la última versión LTS)
 - **npm** >= 9.0.0
-- **Git** to clone the repository
-- **Backend API** - You need to clone and run the backend repository: [TiendaUcnApi](https://github.com/A-benites/TiendaUcnApi)
+- **Git** para clonar el repositorio
+- **Backend API**: Debes clonar y ejecutar el repositorio del backend: [TiendaUcnApi](https://github.com/A-benites/TiendaUcnApi)
 
-> ⚠️ **Important:** This frontend application requires the backend API to be running. Make sure to clone both repositories and start the backend before running this application.
+> ⚠️ **Importante:** Esta aplicación frontend requiere que la API backend esté corriendo. Asegúrate de clonar ambos repositorios y levantar el backend antes de iniciar esta aplicación.
 
-## 🚀 Technologies Used
+## 🚀 Tecnologías Utilizadas
 
-- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
-- **UI Library:** [React 19](https://react.dev/)
-- **Language:** [TypeScript](https://www.typescriptlang.org/)
-- **Styling:** [TailwindCSS 4](https://tailwindcss.com/)
-- **UI Components:** [shadcn/ui](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/)
-- **State Management:** [Zustand](https://zustand-demo.pmnd.rs/)
-- **Data Fetching:** [TanStack Query](https://tanstack.com/query/latest)
-- **HTTP Client:** [Axios](https://axios-http.com/)
-- **Form Validation:** [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)
-- **Authentication:** [NextAuth.js](https://next-auth.js.org/)
-- **Linting:** [ESLint](https://eslint.org/)
-- **Git Hooks:** [Husky](https://typicode.github.io/husky/) + [Commitlint](https://commitlint.js.org/)
+- **Core:** [Next.js 16](https://nextjs.org/) (App Router), [React 19](https://react.dev/)
+- **Lenguaje:** [TypeScript](https://www.typescriptlang.org/)
+- **Estilos:** [TailwindCSS 4](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/)
+- **Estado Global:** [Zustand](https://zustand-demo.pmnd.rs/)
+- **Estado Servidor:** [TanStack Query](https://tanstack.com/query/latest)
+- **Cliente HTTP:** [Axios](https://axios-http.com/)
+- **Formularios:** [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)
+- **Autenticación:** [NextAuth.js](https://next-auth.js.org/)
+- **PDF:** [@react-pdf/renderer](https://react-pdf.org/)
+- **Calidad de Código:** [ESLint](https://eslint.org/), [Husky](https://typicode.github.io/husky/) + [Commitlint](https://commitlint.js.org/)
 
-## 📦 Installation
+## 📦 Instalación
 
-### 1. Clone both repositories
+### 1. Clonar ambos repositorios
 
-**Backend (required first):**
+**Primero el Backend (Requerido):**
 
 ```bash
 git clone https://github.com/A-benites/TiendaUcnApi.git
 cd TiendaUcnApi
-# Follow the backend README for setup instructions
+# Sigue las instrucciones del README del backend para configurarlo
 ```
 
-**Frontend:**
+Luego este Frontend:
 
 ```bash
 git clone https://github.com/A-benites/TiendaUcnWeb.git
 cd TiendaUcnWeb
 ```
 
-### 2. Install frontend dependencies:
+2. Instalar dependencias del frontend:
 
 ```bash
 npm install
 ```
 
-## ⚙️ Configuration
+## ⚙️ Configuración (Crítico)
 
-1. **Create environment variables file:**
+El sistema de seguridad fallará si esto no está configurado correctamente.
 
-Copy the `.env.local` file to `.env` and configure the necessary variables:
+### 1. Crear archivo de variables de entorno
+
+Copia el archivo de plantilla .env.local a .env:
 
 ```bash
 cp .env.local .env
 ```
 
-2. **Configure environment variables in `.env`:**
+### 2. Configurar variables en .env
+
+Edita el archivo .env con los siguientes valores. Es fundamental para que la autenticación y el middleware funcionen.
 
 ```env
-# API Configuration
+# --------------------------------------------------------
+# 1. CONEXIÓN CON BACKEND
+# --------------------------------------------------------
+# URL donde está corriendo tu API .NET (sin barra al final)
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
+
+# --------------------------------------------------------
+# 2. SEGURIDAD NEXTAUTH (OBLIGATORIO)
+# --------------------------------------------------------
+# URL base de tu frontend (http://localhost:3000 en desarrollo)
+# Requerido para que los callbacks de autenticación funcionen correctamente.
+NEXTAUTH_URL=http://localhost:3000
+
+# CLAVE MAESTRA DE ENCRIPTACIÓN
+# Debe ser una cadena aleatoria de al menos 32 caracteres.
+# Esta clave encripta las cookies de sesión del usuario.
+# Genera una ejecutando en tu terminal: openssl rand -base64 32
+NEXTAUTH_SECRET=pega_aqui_tu_codigo_generado_de_32_caracteres_o_mas
+
+# (Opcional) Activa logs detallados de autenticación en la consola si tienes errores
+NEXTAUTH_DEBUG=true
 ```
 
-> ⚠️ **Important:**
->
-> - The `.env` file is NOT uploaded to the repository (it's in `.gitignore`)
-> - Make sure the backend is running on the URL configured in `NEXT_PUBLIC_API_URL`
-> - For local development, the backend should be at `http://localhost:5000/api`
+🛑 **Nota sobre NEXTAUTH_SECRET:** No uses contraseñas simples como "123456". Si la clave es débil o no coincide con la configuración esperada, las sesiones podrían invalidarse o fallar en producción.
 
-## 🏃 Running the App
+## 🏃 Ejecución
 
-### Development Mode
+### Modo Desarrollo
 
 ```bash
 npm run dev
 ```
 
-The application will be available at [http://localhost:3000](http://localhost:3000)
+La aplicación estará disponible en http://localhost:3000
 
-### Production Mode
+### Modo Producción
 
-1. **Build the application:**
+Para probar el rendimiento real (sin hot-reload):
 
 ```bash
 npm run build
-```
-
-2. **Start the production server:**
-
-```bash
 npm run start
 ```
 
-### Linting
-
-To check for code errors:
+### Linting (Revisión de código)
 
 ```bash
 npm run lint
 ```
 
-## 📁 Project Structure
+## 📁 Estructura del Proyecto
 
 ```
 TiendaUcnWeb/
-├── public/                 # Static files
+├── public/                 # Archivos estáticos (imágenes, favicon)
 ├── src/
-│   ├── app/               # Next.js App Router
-│   │   ├── globals.css    # Global styles
-│   │   ├── layout.tsx     # Main layout
-│   │   ├── page.tsx       # Home page
-│   │   └── products/      # Products page
-│   │       ├── page.tsx   # Product catalog
-│   │       └── loading.tsx # Loading state
-│   ├── components/        # Reusable components
-│   │   ├── common/        # Common components
-│   │   │   └── ProductCard.tsx
-│   │   ├── layout/        # Layout components
-│   │   │   ├── navbar.tsx
-│   │   │   └── footer.tsx
-│   │   └── ui/            # shadcn/ui components
-│   ├── hooks/             # Custom hooks
-│   ├── lib/               # Utilities and helpers
-│   │   └── utils.ts
-│   ├── models/            # Interfaces and types
-│   │   └── product.model.ts
-│   ├── providers/         # Context providers
-│   │   ├── axios-provider.tsx
-│   │   └── query-provider.tsx
-│   ├── services/          # API services
-│   │   ├── base-api-service.ts
-│   │   └── product.service.ts
-│   ├── stores/            # Zustand stores
-│   └── types/             # Global type declarations
-│       └── global.d.ts
-├── .env.local             # Environment variables template
-├── .gitignore             # Files ignored by Git
-├── commitlint.config.js   # Commitlint configuration
-├── eslint.config.mjs      # ESLint configuration
-├── next.config.ts         # Next.js configuration
-├── package.json           # Dependencies and scripts
-├── postcss.config.mjs     # PostCSS configuration
-├── tailwind.config.ts     # TailwindCSS configuration
-└── tsconfig.json          # TypeScript configuration
+│   ├── app/                # Next.js App Router (Rutas y Páginas)
+│   │   ├── (admin)/        # Rutas protegidas de administrador
+│   │   ├── (protected)/    # Rutas protegidas de cliente (perfil, pedidos)
+│   │   └── api/            # Endpoints internos (NextAuth)
+│   ├── components/         # Componentes reutilizables
+│   │   ├── admin/          # Tablas y formularios de admin
+│   │   ├── cart/           # Componentes del carrito
+│   │   ├── common/         # Componentes compartidos (ProductCard, etc.)
+│   │   ├── layout/         # Navbar, Footer
+│   │   ├── orders/         # Historial de pedidos y PDF
+│   │   ├── products/       # Catálogo y detalles
+│   │   └── ui/             # Componentes base (shadcn/ui)
+│   ├── hooks/              # Hooks personalizados (Lógica de negocio)
+│   ├── lib/                # Utilidades (Instancia Axios, formatters)
+│   ├── middleware.ts       # 🔒 GUARDIÁN DE SEGURIDAD (Protección de rutas)
+│   ├── models/             # Tipos e Interfaces TypeScript
+│   ├── providers/          # Proveedores de Contexto (Auth, Query)
+│   ├── services/           # Llamadas a la API Backend
+│   └── stores/             # Estado Global (Zustand)
+├── .env                    # Variables de entorno
+├── next.config.ts          # Configuración de Next.js
+├── package.json            # Dependencias y scripts
+└── tsconfig.json           # Configuración de TypeScript
 ```
 
-## 📜 Available Scripts
+## ✨ Características
 
-| Command           | Description                           |
-| ----------------- | ------------------------------------- |
-| `npm run dev`     | Starts the development server         |
-| `npm run build`   | Builds the application for production |
-| `npm run start`   | Starts the production server          |
-| `npm run lint`    | Runs ESLint to check the code         |
-| `npm run prepare` | Sets up Husky (runs automatically)    |
+### ✅ Funcionalidades Implementadas
 
-## ✨ Features
+- **Catálogo de Productos:** Grilla responsiva con paginación y filtrado desde el servidor (/products).
+- **Búsqueda Avanzada:** Búsqueda en tiempo real por nombre, categoría, marca y precio usando Deep Linking en la URL.
+- **Detalle de Producto:** Galería de imágenes, validación de stock y cálculo de descuentos.
+- **Autenticación Segura:** Flujos de Login/Registro usando JWT vía NextAuth.js.
+- **Verificación de Email:** Flujo OTP (código de un solo uso) para activación de cuentas (/auth/verify-email).
+- **Recuperación de Contraseña:** Flujo seguro para restablecer credenciales.
+- **Carrito de Compras:** Estado persistente vía Zustand + LocalStorage con validación de stock en tiempo real.
+- **Proceso de Checkout:** Validación integrada con el backend y reserva de stock.
+- **Historial de Pedidos:** Visualización de pedidos pasados, seguimiento de estado y Generación de recibos PDF.
+- **Panel Administrativo:**
+  - Dashboard con métricas clave.
+  - CRUD completo de Productos (con subida de múltiples imágenes).
+  - Gestión de Categorías y Marcas.
+  - Gestión de Pedidos (actualización de estados).
+- **UX/UI:** Estados de carga (Skeletons) y notificaciones (Toasts) para una experiencia fluida.
+- **Validación de Commits:** Uso de Conventional Commits con Husky.
 
-### Implemented
+## 🔒 Seguridad y Middleware
 
-- ✅ **Product Catalog:** `/products` page with responsive grid
-- ✅ **Product Search:** Real-time filter
-- ✅ **Loading States:** Skeleton UI for better UX
-- ✅ **Async State Management:** TanStack Query with cache
-- ✅ **Reusable Components:** ProductCard with responsive design
-- ✅ **API Service Layer:** Scalable architecture with BaseApiService
-- ✅ **Commit Validation:** Conventional Commits with Husky
+El proyecto implementa una arquitectura de seguridad robusta en tres capas:
 
-### In Development
+- **Middleware de Borde** (`src/middleware.ts`):
+  - Intercepta cada petición a /admin/*, /checkout, /profile y /orders antes de que se renderice la página.
+  - Desencripta el token de sesión usando NEXTAUTH_SECRET.
+  - Verifica el Rol del usuario.
+  - **Acción:** Si el usuario no es administrador e intenta entrar a /admin, es redirigido inmediatamente al inicio.
+- **Protección de Cliente (ProtectedLayout):**
+  - Verifica la sesión en el navegador para mejorar la experiencia de usuario y evitar destellos de contenido no autorizado.
+- **Control de Acceso Basado en Roles (RBAC):**
+  - Elementos de la interfaz (como botones de "Editar" o enlaces al "Panel Admin") se ocultan automáticamente para usuarios sin privilegios.
 
-- 🚧 **Authentication:** NextAuth.js (pending configuration)
-- 🚧 **Shopping Cart:** Management with Zustand
-- 🚧 **Backend API:** Product and order endpoints
+## ❓ Solución de Problemas
 
-## 🤝 Contributing
+- **Error: "Server error / Configuration" al iniciar sesión:**
+  - *Causa:* Falta NEXTAUTH_SECRET o NEXTAUTH_URL en el archivo .env.
+  - *Solución:* Revisa la sección de configuración, asegúrate de que las variables existan y reinicia la terminal.
+- **Error: Redirección infinita o Login fallido:**
+  - *Causa:* El backend no está corriendo, o la hora del sistema es incorrecta (lo que invalida el JWT).
+  - *Solución:* Verifica que http://localhost:5000/api responda correctamente a peticiones.
+- **Error: Imágenes no cargan:**
+  - *Causa:* Dominios externos no configurados.
+  - *Solución:* Si usas Cloudinary u otro servicio, asegúrate de que el dominio esté permitido en next.config.ts.
 
-This project follows the [Conventional Commits](https://www.conventionalcommits.org/) conventions.
+## 📜 Scripts Disponibles
 
-### Allowed commit types:
+| Comando           | Descripción                                 |
+| ----------------- | ------------------------------------------- |
+| `npm run dev`     | Inicia el servidor de desarrollo            |
+| `npm run build`   | Compila la aplicación para producción       |
+| `npm run start`   | Inicia el servidor de producción            |
+| `npm run lint`    | Ejecuta ESLint para revisar código          |
+| `npm run prepare` | Configura Husky (se ejecuta automáticamente)|
 
-- `feat:` New feature
-- `fix:` Bug fix
-- `docs:` Documentation changes
-- `style:` Formatting changes (doesn't affect code)
-- `refactor:` Code refactoring
-- `test:` Add or modify tests
-- `chore:` Maintenance tasks
+## 👥 Equipo
 
-### Example:
+- Amir Benites (amir.benites@alumnos.ucn.cl)
 
-```bash
-git commit -m "feat: add category filter to catalog"
-```
+- Álvaro Zapana (alvaro.zapana@alumnos.ucn.cl)
 
-## 🔗 Useful Links
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [TailwindCSS Docs](https://tailwindcss.com/docs)
-- [shadcn/ui Components](https://ui.shadcn.com/)
-- [TanStack Query Docs](https://tanstack.com/query/latest/docs/react/overview)
-
-## 📝 Important Notes
-
-1. **Backend Required:** The application needs a backend running at `http://localhost:5000/api`
-2. **Environment Variables:** Don't forget to configure your `.env` file before running
-3. **Node Version:** It's recommended to use the latest LTS version of Node.js
-4. **Git Hooks:** Commits will be automatically validated by Husky
-
-## 📧 Contact
-
-For any questions about the project, contact the development team.
-
----
-
-Developed with ❤️ by the UCN team
+- Sebastian Campodónico (sebastian.campodonico@alumnos.ucn.cl)

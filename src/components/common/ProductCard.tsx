@@ -33,7 +33,6 @@ export function ProductCard({ product }: { product: Product }) {
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             onError={() => setImgError(true)}
-            unoptimized
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-muted">
@@ -68,13 +67,12 @@ export function ProductCard({ product }: { product: Product }) {
           {/* Stock */}
           <div className="mt-2 flex items-center gap-1.5">
             <div
-              className={`h-2 w-2 rounded-full ${
-                product.stock > 10
+              className={`h-2 w-2 rounded-full ${product.stock > 10
                   ? "bg-green-500"
                   : product.stock > 0
                     ? "bg-yellow-500"
                     : "bg-red-500"
-              }`}
+                }`}
             />
             <span className="text-xs text-muted-foreground">
               {product.stock > 10

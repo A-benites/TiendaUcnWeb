@@ -20,7 +20,7 @@ const nextConfig = {
     // Manejo de errores de imágenes
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    contentSecurityPolicy: "default-src 'self' 'unsafe-inline' blob: data: https:;",
   },
 };
 

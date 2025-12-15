@@ -75,8 +75,6 @@ export function Navbar() {
 
   const navLinks = [
     { href: "/products", label: "Productos", icon: Package },
-    { href: "/categories", label: "Categorías", icon: LayoutGrid },
-    { href: "/about", label: "Acerca de", icon: Info },
   ];
 
   // Obtener iniciales del usuario
@@ -183,7 +181,7 @@ export function Navbar() {
                           className="flex items-center gap-2 cursor-pointer text-primary focus:text-primary focus:bg-primary/10"
                         >
                           <LayoutDashboard className="h-4 w-4" />
-                          Panel Administrativo
+                          Panel Admin
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />

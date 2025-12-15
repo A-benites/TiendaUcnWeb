@@ -123,7 +123,7 @@ export function ProductFiltersSheet({
                     </span>
                   </SelectItem>
                   {filtersData?.categories.map((category) => (
-                    <SelectItem key={category.id} value={category.name}>
+                    <SelectItem key={category.id} value={category.id.toString()}>
                       {category.name}
                     </SelectItem>
                   ))}
@@ -161,10 +161,10 @@ export function ProductFiltersSheet({
                     </span>
                   </SelectItem>
                   {filtersData?.brands.map((brand) => (
-                    <SelectItem key={brand.id} value={brand.name}>
+                    <SelectItem key={brand.id} value={brand.id.toString()}>
                       {brand.name}
                     </SelectItem>
-                  ))}
+                  ))}{" "}
                 </SelectContent>
               </Select>
             )}
