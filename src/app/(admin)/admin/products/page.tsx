@@ -25,7 +25,7 @@ export default function AdminProductsPage() {
   });
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data, isLoading, isError, isFetching } = useAdminProductsQuery(params);
+  const { data, isLoading, isError, isFetching, refetch } = useAdminProductsQuery(params);
 
   // Obtener categorías y marcas para filtros
   const { items: categories } = useAdminTaxonomy("categories");

@@ -16,7 +16,9 @@ import { Label } from "@/components/ui/label";
 import { Edit, Trash2, Plus, AlertTriangle, Layers, Search } from "lucide-react";
 
 export default function AdminCategoriesPage() {
-  const { items, isLoading, create, update, remove } = useAdminTaxonomy("categories");
+  // Desestructuramos isError y refetch del hook (Asegúrate de haber actualizado el servicio)
+  const { items, isLoading, isError, refetch, create, update, remove } =
+    useAdminTaxonomy("categories");
 
   // Ensure items is always an array
   const safeItems = Array.isArray(items) ? items : [];
@@ -183,11 +185,15 @@ export default function AdminCategoriesPage() {
             <Input value={formName} onChange={(e) => setFormName(e.target.value)} />
           </div>
           <DialogFooter>
-            <Button onClick={handleCreate}>Guardar</Button>
+            <Button onClick={handleCreate} disabled={create.isPending}>
+              {create.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Guardar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Modal Editar */}
       <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
         <DialogContent>
           <DialogHeader>
@@ -198,11 +204,15 @@ export default function AdminCategoriesPage() {
             <Input value={formName} onChange={(e) => setFormName(e.target.value)} />
           </div>
           <DialogFooter>
-            <Button onClick={handleUpdate}>Actualizar</Button>
+            <Button onClick={handleUpdate} disabled={update.isPending}>
+              {update.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Actualizar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Modal Eliminar */}
       <Dialog open={!!deletingId} onOpenChange={(open) => !open && setDeletingId(null)}>
         <DialogContent>
           <DialogHeader>
@@ -212,7 +222,11 @@ export default function AdminCategoriesPage() {
           </DialogHeader>
           <p>¿Seguro? No se podrá eliminar si tiene productos asociados.</p>
           <DialogFooter>
-            <Button variant="destructive" onClick={handleDelete}>
+            <Button variant="outline" onClick={() => setDeletingId(null)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={remove.isPending}>
+              {remove.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Eliminar
             </Button>
           </DialogFooter>

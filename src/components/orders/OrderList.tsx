@@ -149,6 +149,10 @@ export const OrderList = () => {
           <p className="text-sm text-red-600 dark:text-red-500">
             Por favor verifica tu conexión o intenta nuevamente más tarde.
           </p>
+          <Button onClick={() => refetch()} variant="outline" className="gap-2 mt-2">
+            <RefreshCw className="h-4 w-4" />
+            Reintentar
+          </Button>
         </div>
       </div>
     );

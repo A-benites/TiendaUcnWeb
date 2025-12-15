@@ -8,7 +8,7 @@ import { ProductCard } from "@/components/common/ProductCard";
 import { Pagination } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Package, Loader2, X } from "lucide-react";
+import { Search, Package, Loader2, X, RefreshCw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SortDropdown, ProductFiltersSheet, ProductFilters } from "@/components/products";
 import type { SortOption } from "@/components/products";
@@ -58,6 +58,7 @@ export function ProductsCatalog() {
     maxPrice: initialMaxPrice,
   });
 
+  // ... (El código de updateURL, useEffects y handlers se mantiene igual, lo omito por brevedad pero inclúyelo) ...
   // Update URL when params change
   const updateURL = useCallback(
     (params: {
@@ -105,18 +106,11 @@ export function ProductsCatalog() {
     return () => clearTimeout(handler);
   }, [search, debouncedSearch, sortBy, filters, updateURL]);
 
-  // Track previous searchParams to detect URL changes (browser back/forward)
   const prevSearchParamsRef = useRef(searchParams.toString());
 
-  // Sync URL changes to state (for browser back/forward)
   useEffect(() => {
     const currentParamsString = searchParams.toString();
-
-    // Only update state if URL actually changed (not from our own updates)
-    if (prevSearchParamsRef.current === currentParamsString) {
-      return;
-    }
-
+    if (prevSearchParamsRef.current === currentParamsString) return;
     prevSearchParamsRef.current = currentParamsString;
 
     const urlSearch = searchParams.get("search") ?? "";
@@ -131,7 +125,6 @@ export function ProductsCatalog() {
       ? parseInt(searchParams.get("maxPrice")!, 10)
       : undefined;
 
-    // Use requestAnimationFrame to schedule state updates outside of the effect
     requestAnimationFrame(() => {
       setSearch(urlSearch);
       setDebouncedSearch(urlSearch);
@@ -146,8 +139,40 @@ export function ProductsCatalog() {
     });
   }, [searchParams]);
 
-  // Query products
-  const { data, isLoading, isFetching, isError, error } = useProducts({
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    updateURL({ search: debouncedSearch || undefined, page, sortBy, ...filters });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSortChange = (newSortBy: SortOption | undefined) => {
+    setSortBy(newSortBy);
+    setCurrentPage(1);
+    updateURL({ search: debouncedSearch || undefined, page: 1, sortBy: newSortBy, ...filters });
+  };
+
+  const handleFiltersChange = (newFilters: ProductFilters) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
+    updateURL({ search: debouncedSearch || undefined, page: 1, sortBy, ...newFilters });
+  };
+
+  const handleResetFilters = () => {
+    setFilters({});
+    setSortBy(undefined);
+    setCurrentPage(1);
+    updateURL({ search: debouncedSearch || undefined, page: 1 });
+  };
+
+  const handleClearSearch = () => {
+    setSearch("");
+    setDebouncedSearch("");
+    setCurrentPage(1);
+    updateURL({ page: 1, sortBy, ...filters });
+  };
+
+  // AQUÍ ESTÁ EL CAMBIO IMPORTANTE: extraemos refetch
+  const { data, isLoading, isFetching, isError, error, refetch } = useProducts({
     search: debouncedSearch || undefined,
     page: currentPage,
     pageSize: PAGE_SIZE,
@@ -162,62 +187,6 @@ export function ProductsCatalog() {
   const totalPages = data?.totalPages ?? 0;
   const totalCount = data?.totalCount ?? 0;
 
-  // Handlers
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    updateURL({
-      search: debouncedSearch || undefined,
-      page,
-      sortBy,
-      ...filters,
-    });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleSortChange = (newSortBy: SortOption | undefined) => {
-    setSortBy(newSortBy);
-    setCurrentPage(1);
-    updateURL({
-      search: debouncedSearch || undefined,
-      page: 1,
-      sortBy: newSortBy,
-      ...filters,
-    });
-  };
-
-  const handleFiltersChange = (newFilters: ProductFilters) => {
-    setFilters(newFilters);
-    setCurrentPage(1);
-    updateURL({
-      search: debouncedSearch || undefined,
-      page: 1,
-      sortBy,
-      ...newFilters,
-    });
-  };
-
-  const handleResetFilters = () => {
-    setFilters({});
-    setSortBy(undefined);
-    setCurrentPage(1);
-    updateURL({
-      search: debouncedSearch || undefined,
-      page: 1,
-    });
-  };
-
-  const handleClearSearch = () => {
-    setSearch("");
-    setDebouncedSearch("");
-    setCurrentPage(1);
-    updateURL({
-      page: 1,
-      sortBy,
-      ...filters,
-    });
-  };
-
-  // Count active filters
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (filters.category) count++;
@@ -227,7 +196,6 @@ export function ProductsCatalog() {
     return count;
   }, [filters]);
 
-  // Skeleton loader
   const ProductSkeleton = () => (
     <div className="flex flex-col overflow-hidden rounded-xl border bg-card">
       <Skeleton className="aspect-square w-full" />
@@ -242,7 +210,6 @@ export function ProductsCatalog() {
 
   return (
     <div className="container mx-auto max-w-screen-2xl px-4 py-8">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Productos</h1>
         <p className="mt-2 text-muted-foreground">
@@ -250,11 +217,8 @@ export function ProductsCatalog() {
         </p>
       </div>
 
-      {/* Toolbar: Búsqueda, Filtros, Ordenamiento */}
       <div className="mb-8 flex flex-col gap-4">
-        {/* Row 1: Search + Actions */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {/* Search */}
           <div className="relative max-w-md flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -273,8 +237,6 @@ export function ProductsCatalog() {
               </button>
             )}
           </div>
-
-          {/* Actions */}
           <div className="flex items-center gap-2">
             <ProductFiltersSheet
               filters={filters}
@@ -286,9 +248,7 @@ export function ProductsCatalog() {
           </div>
         </div>
 
-        {/* Row 2: Active filters badges + Results count */}
         <div className="flex flex-wrap items-center justify-between gap-2">
-          {/* Active filters badges */}
           <div className="flex flex-wrap items-center gap-2">
             {filters.category && (
               <FilterBadge
@@ -318,7 +278,6 @@ export function ProductsCatalog() {
             )}
           </div>
 
-          {/* Results info */}
           {!isLoading && (
             <p className="text-sm text-muted-foreground">
               {totalCount > 0 ? (
@@ -338,7 +297,6 @@ export function ProductsCatalog() {
         </div>
       </div>
 
-      {/* Loading indicator for transitions */}
       {(isPending || isFetching) && !isLoading && (
         <div className="mb-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -346,18 +304,21 @@ export function ProductsCatalog() {
         </div>
       )}
 
-      {/* Error state */}
+      {/* Manejo de Error Corregido */}
       {isError && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="rounded-full bg-red-100 p-4 dark:bg-red-900/20">
             <Package className="h-8 w-8 text-red-600 dark:text-red-400" />
           </div>
           <h3 className="mt-4 text-lg font-semibold">Error al cargar productos</h3>
-          <p className="mt-2 text-sm text-muted-foreground">{String(error)}</p>
+          <p className="mt-2 text-sm text-muted-foreground mb-4">{String(error)}</p>
+          <Button onClick={() => refetch()} variant="outline" className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Reintentar
+          </Button>
         </div>
       )}
 
-      {/* Loading skeleton */}
       {isLoading && (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: PAGE_SIZE }).map((_, i) => (
@@ -366,7 +327,6 @@ export function ProductsCatalog() {
         </div>
       )}
 
-      {/* Products grid */}
       {!isLoading && !isError && (
         <>
           {products.length === 0 ? (
@@ -388,14 +348,12 @@ export function ProductsCatalog() {
             </div>
           ) : (
             <>
-              {/* Grid */}
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
 
-              {/* Pagination */}
               {totalPages > 1 && (
                 <div className="mt-8 flex justify-center">
                   <Pagination
@@ -414,7 +372,6 @@ export function ProductsCatalog() {
   );
 }
 
-// Helper component for filter badges
 function FilterBadge({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
@@ -426,7 +383,6 @@ function FilterBadge({ label, onRemove }: { label: string; onRemove: () => void 
   );
 }
 
-// Helper to get sort label
 function getSortLabel(sortBy: SortOption): string {
   const labels: Record<SortOption, string> = {
     Newest: "Más recientes",

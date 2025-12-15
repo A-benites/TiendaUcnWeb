@@ -17,6 +17,7 @@ import { Search, Eye, ShoppingBag, ChevronLeft, ChevronRight, Filter, X } from "
 import Link from "next/link";
 import { formatCurrency, getOrderStatus, formatDate } from "@/utils/format";
 import { Badge } from "@/components/ui/badge";
+import { TableSkeleton } from "@/components/ui/skeletons";
 
 export default function AdminOrdersPage() {
   const [params, setParams] = useState<AdminOrderSearchParams>({
