@@ -75,8 +75,6 @@ export function Navbar() {
 
   const navLinks = [
     { href: "/products", label: "Productos", icon: Package },
-    { href: "/categories", label: "Categorías", icon: LayoutGrid },
-    { href: "/about", label: "Acerca de", icon: Info },
   ];
 
   // Obtener iniciales del usuario

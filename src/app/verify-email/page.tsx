@@ -9,7 +9,15 @@ import { Button } from "@/components/ui/button";
 import { InputOTP } from "@/components/ui/input-otp";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { Loader2, Mail, RefreshCw, Shield, ArrowRight, CheckCircle2, ArrowLeft } from "lucide-react";
+import {
+  Loader2,
+  Mail,
+  RefreshCw,
+  Shield,
+  ArrowRight,
+  CheckCircle2,
+  ArrowLeft,
+} from "lucide-react";
 
 function VerifyEmailContent() {
   const router = useRouter();

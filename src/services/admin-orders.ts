@@ -11,7 +11,7 @@ import { toast } from "sonner";
 // MAPEO: Texto Frontend -> Número Backend (Enum C#)
 const statusToEnum: Record<string, number> = {
   Pending: 0,
-  Paid: 1,
+  Processing: 1, // Changed from Paid to Processing to match backend
   Shipped: 2,
   Delivered: 3,
   Cancelled: 4,

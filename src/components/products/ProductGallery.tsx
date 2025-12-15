@@ -57,7 +57,6 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
             fill
             className="object-cover transition-transform duration-500 hover:scale-105"
             priority
-            unoptimized
             onError={() => setImgError(true)}
           />
         ) : (
@@ -120,7 +119,6 @@ export function ProductGallery({ images, title }: ProductGalleryProps) {
                 alt={`Miniatura ${index + 1}`}
                 fill
                 className="object-cover"
-                unoptimized
               />
             </button>
           ))}

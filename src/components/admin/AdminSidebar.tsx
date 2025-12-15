@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { 
-  LayoutDashboard, 
-  Package, 
-  ShoppingCart, 
-  Bookmark, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Bookmark,
+  Layers,
+  LogOut,
   Store,
-  Home
+  Home,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
@@ -18,6 +19,7 @@ import { signOut } from "next-auth/react";
 const menuItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/products", label: "Productos", icon: Package },
+  { href: "/admin/categories", label: "Categorías", icon: Layers },
   { href: "/admin/brands", label: "Marcas", icon: Bookmark },
   { href: "/admin/orders", label: "Pedidos", icon: ShoppingCart },
 ];
@@ -36,7 +38,11 @@ export const AdminSidebar = ({ onNavigate }: AdminSidebarProps) => {
   return (
     <div className="flex h-full w-full flex-col border-r bg-card text-card-foreground">
       <div className="flex h-16 items-center border-b px-6">
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary" onClick={handleClick}>
+        <Link
+          href="/"
+          className="flex items-center gap-2 font-bold text-xl text-primary"
+          onClick={handleClick}
+        >
           <Store className="h-6 w-6" />
           <span>AdminPanel</span>
         </Link>
@@ -53,8 +59,8 @@ export const AdminSidebar = ({ onNavigate }: AdminSidebarProps) => {
                 onClick={handleClick}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 transition-all",
-                  isActive 
-                    ? "bg-primary/10 text-primary font-semibold" 
+                  isActive
+                    ? "bg-primary/10 text-primary font-semibold"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
@@ -73,8 +79,8 @@ export const AdminSidebar = ({ onNavigate }: AdminSidebarProps) => {
             Ir a la Tienda
           </Link>
         </Button>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className="w-full justify-start gap-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
           onClick={() => signOut({ callbackUrl: "/" })}
         >

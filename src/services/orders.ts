@@ -38,6 +38,8 @@ export interface OrderDTO {
   total: number;
   /** <summary>The subtotal amount of the order (before discounts).</summary> */
   subTotal: number;
+  /** <summary>The current status of the order.</summary> */
+  status: string;
   /** <summary>The date and time when the order was created.</summary> */
   createdAt: string | null;
   /** <summary>List of items included in the order.</summary> */

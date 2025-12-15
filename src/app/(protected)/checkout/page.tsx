@@ -73,6 +73,7 @@ export default function CheckoutPage() {
       // 4. Invalidate product queries to update stock (both list and individual products)
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["product"] });
+      queryClient.invalidateQueries({ queryKey: ["userOrders"] }); // Update order history
 
       toast.success("¡Pedido realizado con éxito!");
       router.push("/checkout/success");
@@ -124,7 +125,6 @@ export default function CheckoutPage() {
                       alt={item.title}
                       fill
                       className="object-cover"
-                      unoptimized
                     />
                   </div>
                   <div className="flex-1">

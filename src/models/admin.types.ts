@@ -43,13 +43,11 @@ export interface AdminOrderDTO {
   // IMPORTANTE: El backend lo llama OrderItems, aquí orderItems (camelCase)
   orderItems: AdminOrderItemDTO[];
 
-  // NOTA: Tu OrderDTO.cs actual NO tiene la propiedad Status.
-  // Asumiremos que la agregas o que viene extra, para que el frontend funcione.
+  // Status viene del enum OrderStatus del backend
   status?: string;
 
-  // Estos campos no están en tu OrderDTO.cs, pero el diseño los usa.
-  // Si no vienen del backend, aparecerán vacíos.
-  userId?: string;
+  // Datos del cliente que vienen del mapeo con User
+  userId?: number;
   userName?: string;
   userEmail?: string;
 }

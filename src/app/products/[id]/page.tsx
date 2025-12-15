@@ -10,7 +10,7 @@ import { ArrowLeft } from "lucide-react";
 
 export default function ProductDetailPage() {
   const router = useRouter();
-  
+
   // Obtener el ID de la URL
   const { id } = useParams();
   const productId = Number(id);
@@ -24,9 +24,12 @@ export default function ProductDetailPage() {
   if (!product) return <div className="p-6">Producto no encontrado</div>;
 
   // Construir array de imágenes para la galería
-  const images = product.imagesURL && product.imagesURL.length > 0
-    ? product.imagesURL
-    : (product.mainImageURL ? [product.mainImageURL] : []);
+  const images =
+    product.imagesURL && product.imagesURL.length > 0
+      ? product.imagesURL
+      : product.mainImageURL
+        ? [product.mainImageURL]
+        : [];
 
   return (
     <div className="container mx-auto px-4 py-8">

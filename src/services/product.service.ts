@@ -41,7 +41,7 @@ export async function getProducts(params: GetProductsParams = {}): Promise<Produ
   if (category && category !== "all") {
     const catId = parseInt(category, 10);
     if (!isNaN(catId)) {
-        queryParams.categoryId = catId;
+      queryParams.categoryId = catId;
     }
   }
 
@@ -49,7 +49,7 @@ export async function getProducts(params: GetProductsParams = {}): Promise<Produ
   if (brand && brand !== "all") {
     const brandId = parseInt(brand, 10);
     if (!isNaN(brandId)) {
-        queryParams.brandId = brandId;
+      queryParams.brandId = brandId;
     }
   }
 
@@ -75,7 +75,9 @@ export async function getProducts(params: GetProductsParams = {}): Promise<Produ
     totalCount: backend.totalCount ?? products.length,
     page: backend.pageNumber ?? backend.page ?? page,
     pageSize: backend.pageSize ?? pageSize,
-    totalPages: backend.totalPages ?? (Math.ceil((backend.totalCount ?? products.length) / (backend.pageSize ?? pageSize)) || 1),
+    totalPages:
+      backend.totalPages ??
+      (Math.ceil((backend.totalCount ?? products.length) / (backend.pageSize ?? pageSize)) || 1),
   };
 }
 

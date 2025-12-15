@@ -42,7 +42,6 @@ export function CartItemRow({
                             alt={item.title}
                             fill
                             className="object-cover"
-                            unoptimized
                         />
                     </div>
 

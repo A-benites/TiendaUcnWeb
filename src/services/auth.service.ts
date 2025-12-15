@@ -34,6 +34,17 @@ export interface ResendCodeData {
   email: string;
 }
 
+export interface ForgotPasswordData {
+  email: string;
+}
+
+export interface ResetPasswordData {
+  email: string;
+  code: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 // Raw user type from backend (gender can be numeric)
 interface RawUser {
   email: string;
@@ -89,6 +100,22 @@ export const authService = {
       email,
     });
     return data;
+  },
+
+  /**
+   * Solicita el restablecimiento de contraseña
+   */
+  async recoverPassword(data: ForgotPasswordData) {
+    const response = await api.post<ApiResponse<string>>("/auth/recover-password", data);
+    return response.data;
+  },
+
+  /**
+   * Restablece la contraseña con el código de verificación
+   */
+  async resetPassword(data: ResetPasswordData) {
+    const response = await api.patch<ApiResponse<string>>("/auth/reset-password", data);
+    return response.data;
   },
 
   /**

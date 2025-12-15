@@ -122,49 +122,50 @@ export function ProductFiltersSheet({
                       Todas las categorías
                     </span>
                   </SelectItem>
-                                                      {filtersData?.categories.map((category) => (
-                                                          <SelectItem key={category.id} value={category.id.toString()}>
-                                                              {category.name}
-                                                          </SelectItem>
-                                                      ))}
-                                                  </SelectContent>
-                                              </Select>
-                                          )}
-                                      </div>
-                  
-                                      {/* Marca */}
-                                      <div className="space-y-3">
-                                          <div className="flex items-center gap-2">
-                                              <Building2 className="h-4 w-4 text-muted-foreground" />
-                                              <Label htmlFor="brand" className="text-sm font-medium">
-                                                  Marca
-                                              </Label>
-                                          </div>
-                                          {isLoadingFilters ? (
-                                              <div className="flex h-10 items-center justify-center rounded-md border border-dashed bg-muted/30">
-                                                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                                                  <span className="ml-2 text-xs text-muted-foreground">Cargando...</span>
-                                              </div>
-                                          ) : (
-                                              <Select
-                                                  value={filters.brand ?? "all"}
-                                                  onValueChange={(value) => handleSelectChange("brand", value)}
-                                              >
-                                                  <SelectTrigger id="brand" className="w-full">
-                                                      <SelectValue placeholder="Todas las marcas" />
-                                                  </SelectTrigger>
-                                                  <SelectContent>
-                                                      <SelectItem value="all">
-                                                          <span className="flex items-center gap-2">
-                                                              <Sparkles className="h-3.5 w-3.5" />
-                                                              Todas las marcas
-                                                          </span>
-                                                      </SelectItem>
-                                                      {filtersData?.brands.map((brand) => (
-                                                          <SelectItem key={brand.id} value={brand.id.toString()}>
-                                                              {brand.name}
-                                                          </SelectItem>
-                                                      ))}                </SelectContent>
+                  {filtersData?.categories.map((category) => (
+                    <SelectItem key={category.id} value={category.id.toString()}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+
+          {/* Marca */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+              <Label htmlFor="brand" className="text-sm font-medium">
+                Marca
+              </Label>
+            </div>
+            {isLoadingFilters ? (
+              <div className="flex h-10 items-center justify-center rounded-md border border-dashed bg-muted/30">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-xs text-muted-foreground">Cargando...</span>
+              </div>
+            ) : (
+              <Select
+                value={filters.brand ?? "all"}
+                onValueChange={(value) => handleSelectChange("brand", value)}
+              >
+                <SelectTrigger id="brand" className="w-full">
+                  <SelectValue placeholder="Todas las marcas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    <span className="flex items-center gap-2">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Todas las marcas
+                    </span>
+                  </SelectItem>
+                  {filtersData?.brands.map((brand) => (
+                    <SelectItem key={brand.id} value={brand.id.toString()}>
+                      {brand.name}
+                    </SelectItem>
+                  ))}{" "}
+                </SelectContent>
               </Select>
             )}
           </div>

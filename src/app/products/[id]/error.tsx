@@ -23,13 +23,14 @@ export default function Error({
       </div>
       <h2 className="text-2xl font-bold mb-2">¡Algo salió mal!</h2>
       <p className="text-muted-foreground mb-6 max-w-md">
-        No pudimos cargar los detalles del producto. Puede ser un problema de conexión o que el producto no exista.
+        No pudimos cargar los detalles del producto. Puede ser un problema de conexión o que el
+        producto no exista.
       </p>
       <div className="flex gap-4">
         <Button onClick={() => reset()} variant="outline">
           Intentar de nuevo
         </Button>
-        <Button onClick={() => window.location.href = '/products'} variant="default">
+        <Button onClick={() => (window.location.href = "/products")} variant="default">
           Volver al catálogo
         </Button>
       </div>
